@@ -7,3 +7,21 @@
 // Just going to list every keyword first, to catch everything obvious
 GO TURN VAR JUMP FOR STEP TO DO BEGIN END sin cos sqrt ; + - * / ( ) = asd e r t 100.23232 544 2 330.22
 
+VAR a = 255.0043
+VAR b = 222
+VAR c = cos(sqrt(sin(1002.44)))
+VAR d = cos(sqrt(sin(1002.44
+
+VAR e = turn // Comment that shares a line with code? 223 /  \ sd22
+
+VAR d = a + b - c / d * a
+
+VAR abcde = a + b - c * (d = sqrt(a))
+
+GO a 
+TURN ;
+JUMP b;
+DO c;
+DO c FOR JUMP abcde;
+BEGIN 255.00 * 24400;
+}
