@@ -1,5 +1,13 @@
-// tests identifiers beginning in numbers or symbols
+//Tests illegal identifier formats and incomplete keywords
 
-+test
-+224test
-t225+est
+SIN 
+COS 
+SQRT
+X
+xX
+yyyY
+
+G
+TUR
+URN
+TUR N
