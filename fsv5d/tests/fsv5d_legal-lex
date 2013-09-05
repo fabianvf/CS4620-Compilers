@@ -1,0 +1,9 @@
+// Starting out this test with a comment with some letters and whitespace
+// Also going to newline a comment // with a second comment 
+// Now a few rule matching tokens inside the comment: GO TURN VAR JUMP FOR STEP TO DO BEGIN END sin cos sqrt ; + - * / ( ) = aseffed a e f 100.42424 5544 2. 33 0.22
+
+// Now the non-comment testing begins
+
+// Just going to list every keyword first, to catch everything obvious
+GO TURN VAR JUMP FOR STEP TO DO BEGIN END sin cos sqrt ; + - * / ( ) = asd e r t 100.23232 544 2 330.22
+
