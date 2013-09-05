@@ -1,7 +1,7 @@
 
 
 eins.out: eins.tlt scanner 
-	scanner < eins.tlt > eins.out
+	./scanner < eins.tlt > eins.out
 
 lex.yy.o:  lex.yy.c token.h symtab.h
 	gcc -c lex.yy.c

@@ -45,20 +45,3 @@ sqrt            return SQRT;
 .               fprintf(stderr,"Unexpected character %c (%2X)\n",yytext[0],yytext[0]);
 
 %%
-
-main(){
-int token;
-
-while ((token = yylex()) != 0) {
-
-switch (token) {
-  case JUMP : printf("JUMP\n"); break;
-  case FLOAT : printf("FLOAT %f \n",yylval.d); break;
-
-  default:
-    printf("ILLEGAL CHARACTER\n"); break;
-
-
-}
-}
-}
