@@ -1,0 +1,8 @@
+// tests with illegal characters
+
+GO a , b
+TURN ;{}
+JUMP b**c; \\
+DO c^c;
+DO c FOR & JUMP | STEP abcde;
+BEGIN 255.00 * 24400;

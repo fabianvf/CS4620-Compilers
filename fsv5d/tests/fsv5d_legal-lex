@@ -22,6 +22,8 @@ GO a
 TURN ;
 JUMP b;
 DO c;
-DO c FOR JUMP abcde;
+DO c FOR JUMP STEP abcde;
 BEGIN 255.00 * 24400;
 
+// tests case-switched keywords 
+go turn var jump for step to do begin end SIN COS SQRT

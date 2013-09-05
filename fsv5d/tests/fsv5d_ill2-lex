@@ -1,0 +1,5 @@
+// tests identifiers beginning in numbers or symbols
+
++test
++224test
+t225+est

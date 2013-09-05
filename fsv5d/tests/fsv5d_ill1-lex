@@ -1,0 +1,8 @@
+// Tests floats with no digits after the decimal
+
+255.
+255. 
+255 .
+
+.3444
+
