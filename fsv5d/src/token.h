@@ -24,6 +24,10 @@
 #define OPEN 279
 #define CLOSE 280
 #define ASSIGN 281
+#define WHILE 282
+#define IF 283
+#define THEN 284
+#define ELSE 285
 
 
 

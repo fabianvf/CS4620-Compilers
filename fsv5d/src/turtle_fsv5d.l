@@ -14,11 +14,15 @@ TURN            return TURN;
 VAR             return VAR;
 JUMP            return JUMP;
 FOR             return FOR;
+WHILE			return WHILE;
 STEP            return STEP;
 TO              return TO;
 DO              return DO;
 BEGIN           return COPEN;
 END             return CCLOSE;
+IF				return IF;
+THEN 			return THEN;
+ELSE			return ELSE
 
 sin             return SIN;
 cos             return COS;
