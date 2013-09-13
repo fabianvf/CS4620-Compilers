@@ -22,7 +22,7 @@ BEGIN           return COPEN;
 END             return CCLOSE;
 IF				return IF;
 THEN 			return THEN;
-ELSE			return ELSE
+ELSE			return ELSE;
 
 sin             return SIN;
 cos             return COS;
