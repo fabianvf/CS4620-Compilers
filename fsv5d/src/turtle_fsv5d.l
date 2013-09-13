@@ -37,7 +37,7 @@ sqrt            return SQRT;
 \)              return CLOSE;
 =               return ASSIGN;
 
-[a-z]+          { yylval.n = lookup(yytext); 
+[a-z_]+          { yylval.n = lookup(yytext); 
                   if (yylval.n==NULL)
 		    yylval.n = insert(yytext);
                   return ID;
