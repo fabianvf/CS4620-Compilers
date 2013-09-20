@@ -42,8 +42,8 @@ sqrt            return SQRT;
 \>		return GT;
 \<=		return LEQ;
 \>=		return GEQ;
-{		return OBRACE;
-}		return CBRACE;
+\{		return OBRACE;
+\}		return CBRACE;
 
 
 [a-z_]+          { yylval.n = lookup(yytext); 
