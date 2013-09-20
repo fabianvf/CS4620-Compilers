@@ -38,10 +38,10 @@ sqrt            return SQRT;
 =               return ASSIGN;
 ==		return EQ;
 !=		return NEQ;
-<		return LT;
->		return GT;
-<=		return LEQ;
->=		return GEQ;
+\<		return LT;
+\>		return GT;
+\<=		return LEQ;
+\>=		return GEQ;
 {		return OBRACE;
 }		return CBRACE;
 
