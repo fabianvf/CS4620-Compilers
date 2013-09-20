@@ -14,15 +14,15 @@ TURN            return TURN;
 VAR             return VAR;
 JUMP            return JUMP;
 FOR             return FOR;
-WHILE			return WHILE;
+WHILE		return WHILE;
 STEP            return STEP;
 TO              return TO;
 DO              return DO;
 BEGIN           return COPEN;
 END             return CCLOSE;
-IF				return IF;
-THEN 			return THEN;
-ELSE			return ELSE;
+IF		return IF;
+THEN 		return THEN;
+ELSE		return ELSE;
 
 sin             return SIN;
 cos             return COS;
@@ -36,6 +36,15 @@ sqrt            return SQRT;
 \(              return OPEN;
 \)              return CLOSE;
 =               return ASSIGN;
+==		return EQ;
+!=		return NEQ;
+<		return LT;
+>		return GT;
+<=		return LEQ;
+>=		return GEQ;
+{		return OBRACE;
+}		return CBRACE;
+
 
 [a-z_]+          { yylval.n = lookup(yytext); 
                   if (yylval.n==NULL)

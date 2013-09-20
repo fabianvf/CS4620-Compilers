@@ -28,7 +28,14 @@
 #define IF 283
 #define THEN 284
 #define ELSE 285
-
+#define EQ 286
+#define NEQ 287
+#define LT 288
+#define GT 289
+#define LEQ 290
+#define GEQ 291
+#define OBRACE 292
+#define CBRACE 293
 
 
 typedef union YYSTYPE
