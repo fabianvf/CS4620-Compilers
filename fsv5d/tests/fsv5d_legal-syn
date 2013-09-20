@@ -1,0 +1,22 @@
+// Legal test case for logo language
+
+VAR a;
+VAR b;
+VAR c;
+VAR d;
+VAR index;
+
+a = 1;
+b = 11;
+c = 22;
+d = c - d + a;
+
+FOR index = 0 STEP a TO b DO
+BEGIN
+	TURN index;
+	GO sin d;
+	JUMP b - a;
+	GO c * a - b;
+	TURN cos sqrt d * c;
+	GO d / c - 1;
+END
