@@ -6,16 +6,17 @@
 %}
 
 %union { int i; node *n; double d;}
+
 %token GO TURN VAR JUMP
 %token FOR WHILE STEP TO DO 
-%token IF THEN ELSE
+%token IF THEN ELSE 
 %token COPEN CCLOSE
 %token SIN COS SQRT
 %token <d> FLOAT
 %token <n> ID               
 %token <i> NUMBER    
 %token SEMICOLON PLUS MINUS TIMES DIV OPEN CLOSE ASSIGN
-%token EQ NEQ LT GT GEQ LEQ OBRACE CBRACE //Don't know if these go here or not...
+%token EQ NEQ LT GT GEQ LEQ OBRACE CBRACE 
 
 %type <n> decl
 %type <n> decllist
@@ -55,12 +56,15 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 		 
 		 
-stmt: WHILE OPEN {printf("{ ");} comp CLOSE OBRACE {printf("\n{} {exit} ifelse\n");} stmtlist CBRACE {printf("} loop\n");};
+stmt: WHILE OPEN {printf("{ ");} comp CLOSE {printf("\n{} {exit} ifelse\n");} block {printf("} loop\n");};
 
 stmt: COPEN stmtlist CCLOSE;	 
 
-stmt: IF OPEN comp CLOSE THEN OBRACE {printf("\n{ ");} nestmtlist CBRACE ELSE OBRACE {printf("} { ");} nestmtlist CBRACE {printf("} ifelse\n");};
-stmt: IF OPEN comp CLOSE THEN OBRACE {printf("\n{ ");} nestmtlist CBRACE {printf("} if\n");};
+stmt: IF OPEN comp CLOSE THEN {printf("\n{ ");} block ELSE {printf("} { ");} block  {printf("} ifelse\n");};
+stmt: IF OPEN comp CLOSE THEN {printf("\n{ ");} block {printf("} if\n");};
+
+
+block: OBRACE nestmtlist CBRACE;
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
