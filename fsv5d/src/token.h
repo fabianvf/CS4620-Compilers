@@ -37,9 +37,8 @@
 #define OBRACE 292
 #define CBRACE 293
 
-
 typedef union YYSTYPE
 { int i; node *n; double d;}
         YYSTYPE;
-YYSTYPE yylval;
+extern YYSTYPE yylval;
 
