@@ -52,7 +52,7 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 		 
 		 
-stmt: WHILE OPEN ID LT NUMBER CLOSE OBRACE stmtlist CBRACE {printf("HERE");};
+//stmt: WHILE OPEN ID LT NUMBER CLOSE OBRACE stmtlist CBRACE {printf("HERE");};
 
 stmt: COPEN stmtlist CCLOSE;	 
 
@@ -75,7 +75,7 @@ factor: atomic;
 //TODO
 //comp: atomic EQ atomic{printf("eq\n");};
 //comp: atomic NEQ atomic{printf("ne\n");};
-comp: ID LT NUMBER {printf("%s %d lt\n", $1->symbol, $3);};
+//comp: ID LT NUMBER {printf("%s %d lt\n", $1->symbol, $3);};
 //comp: atomic GT atomic{printf("gt\n");};
 //comp: atomic LEQ atomic{printf("le\n");};
 //comp: atomic GEQ atomic{printf("ge\n");};
