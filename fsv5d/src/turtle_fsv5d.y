@@ -14,7 +14,7 @@
 %token <n> ID               
 %token <i> NUMBER    
 %token SEMICOLON PLUS MINUS TIMES DIV OPEN CLOSE ASSIGN
-%token EQ NEQ LT GT GEQ OBRACE CBRACE //Don't know if these go here or not...
+%token EQ NEQ LT GT GEQ LEQ OBRACE CBRACE //Don't know if these go here or not...
 
 
 %type <n> decl
@@ -73,12 +73,12 @@ factor: SQRT factor { printf("sqrt ");};
 factor: atomic;
 
 //TODO
-comp: atomic EQ atomic{printf("eq\n")}
-comp: atomic NEQ atomic{printf("ne\n")}
-comp: atomic LT atomic{printf("lt\n")}
-comp: atomic GT atomic{printf("gt\n")}
-comp: atomic LEQ atomic{printf("le\n")}
-comp: atomic GEQ atomic{printf("ge\n")}
+comp: atomic EQ atomic{printf("eq\n");};
+comp: atomic NEQ atomic{printf("ne\n");};
+comp: atomic LT atomic{printf("lt\n");};
+comp: atomic GT atomic{printf("gt\n");};
+comp: atomic LEQ atomic{printf("le\n");};
+comp: atomic GEQ atomic{printf("ge\n");};
 
 
 
