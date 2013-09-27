@@ -1,13 +1,14 @@
 
+
 %{
 #include <stdio.h>
 #include "symtab.h"
 %}
 
 %union { int i; node *n; double d;}
-
 %token GO TURN VAR JUMP
-%token FOR WHILE STEP TO DO
+%token FOR WHILE STEP TO DO 
+%token IF THEN ELSE
 %token COPEN CCLOSE
 %token SIN COS SQRT
 %token <d> FLOAT
@@ -15,7 +16,6 @@
 %token <i> NUMBER    
 %token SEMICOLON PLUS MINUS TIMES DIV OPEN CLOSE ASSIGN
 %token EQ NEQ LT GT GEQ LEQ OBRACE CBRACE //Don't know if these go here or not...
-
 
 %type <n> decl
 %type <n> decllist
@@ -34,11 +34,14 @@ tail: { printf("stroke\n"); };
 decllist: ;
 decllist: decllist decl;
 
+
 decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);} ;
 
 
 stmtlist: ;
 stmtlist: stmtlist stmt ;
+
+nestmtlist: stmtlist stmt;
 
 stmt: ID ASSIGN expr SEMICOLON {printf("/tlt%s exch store\n",$1->symbol);} ;
 stmt: GO expr SEMICOLON {printf("0 rlineto\n");};
@@ -52,10 +55,12 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 		 
 		 
-stmt: WHILE OPEN {printf("{ ");} comp CLOSE OBRACE {printf("\n{} {exit} ifelse\n");} stmtlist CBRACE {printf("} loop\nclosepath\n");};
+stmt: WHILE OPEN {printf("{ ");} comp CLOSE OBRACE {printf("\n{} {exit} ifelse\n");} stmtlist CBRACE {printf("} loop\n");};
 
 stmt: COPEN stmtlist CCLOSE;	 
 
+stmt: IF OPEN comp CLOSE THEN OBRACE {printf("\n{ ");} nestmtlist CBRACE ELSE OBRACE {printf("} { ");} nestmtlist CBRACE {printf("} ifelse\n");};
+stmt: IF OPEN comp CLOSE THEN OBRACE {printf("\n{ ");} nestmtlist CBRACE {printf("} if\n");};
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
@@ -90,8 +95,7 @@ atomic: ID {printf("tlt%s ", $1->symbol);};
 
 %%
 int yyerror(char *msg)
-{  printf(stderr,"Error: %s\n",msg);
-   printf("On token: %d",yychar);
+{  fprintf(stderr,"Error: %s\n",msg);
    return 0;
 }
 

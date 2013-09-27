@@ -24,9 +24,12 @@ END             return CCLOSE;
 
 
 
+
+
 sin             return SIN;
 cos             return COS;
 sqrt            return SQRT;
+
 
 ;               return SEMICOLON;
 \+              return PLUS;
@@ -37,6 +40,9 @@ sqrt            return SQRT;
 \)              return CLOSE;
 =               return ASSIGN;
 
+IF		return IF;
+THEN		return THEN;
+ELSE		return ELSE;
 ==		return EQ;
 !=		return NEQ;
 \<		return LT;

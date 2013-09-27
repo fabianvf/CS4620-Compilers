@@ -46,30 +46,33 @@
      STEP = 264,
      TO = 265,
      DO = 266,
-     COPEN = 267,
-     CCLOSE = 268,
-     SIN = 269,
-     COS = 270,
-     SQRT = 271,
-     FLOAT = 272,
-     ID = 273,
-     NUMBER = 274,
-     SEMICOLON = 275,
-     PLUS = 276,
-     MINUS = 277,
-     TIMES = 278,
-     DIV = 279,
-     OPEN = 280,
-     CLOSE = 281,
-     ASSIGN = 282,
-     EQ = 283,
-     NEQ = 284,
-     LT = 285,
-     GT = 286,
-     GEQ = 287,
-     LEQ = 288,
-     OBRACE = 289,
-     CBRACE = 290
+     IF = 267,
+     THEN = 268,
+     ELSE = 269,
+     COPEN = 270,
+     CCLOSE = 271,
+     SIN = 272,
+     COS = 273,
+     SQRT = 274,
+     FLOAT = 275,
+     ID = 276,
+     NUMBER = 277,
+     SEMICOLON = 278,
+     PLUS = 279,
+     MINUS = 280,
+     TIMES = 281,
+     DIV = 282,
+     OPEN = 283,
+     CLOSE = 284,
+     ASSIGN = 285,
+     EQ = 286,
+     NEQ = 287,
+     LT = 288,
+     GT = 289,
+     GEQ = 290,
+     LEQ = 291,
+     OBRACE = 292,
+     CBRACE = 293
    };
 #endif
 
@@ -80,12 +83,12 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 7 "turtle_fsv5d.y"
+#line 8 "turtle_fsv5d.y"
  int i; node *n; double d;
 
 
 /* Line 2068 of yacc.c  */
-#line 89 "turtle_fsv5d.tab.h"
+#line 92 "turtle_fsv5d.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
