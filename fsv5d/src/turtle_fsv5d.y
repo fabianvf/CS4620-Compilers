@@ -7,13 +7,15 @@
 %union { int i; node *n; double d;}
 
 %token GO TURN VAR JUMP
-%token FOR STEP TO DO
+%token FOR WHILE STEP TO DO
 %token COPEN CCLOSE
 %token SIN COS SQRT
 %token <d> FLOAT
 %token <n> ID               
-%token <i> NUMBER       
+%token <i> NUMBER    
 %token SEMICOLON PLUS MINUS TIMES DIV OPEN CLOSE ASSIGN
+%token EQ NEQ LT GT GEQ OBRACE CBRACE //Don't know if these go here or not...
+
 
 %type <n> decl
 %type <n> decllist
@@ -48,8 +50,12 @@ stmt: FOR ID ASSIGN expr
 	  TO expr
 	  DO {printf("{ /tlt%s exch store\n",$2->symbol);} 
 	     stmt {printf("} for\n");};
-
+stmt: WHILE OPEN {printf("{ ");} 
+			comp CLOSE OBRACE {printf("{} {exit} ifelse\n");}
+		stmtlist 
+		CBRACE {printf("} loop\n");};
 stmt: COPEN stmtlist CCLOSE;	 
+
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
@@ -65,6 +71,14 @@ factor: SIN factor { printf("sin ");};
 factor: COS factor { printf("cos ");};
 factor: SQRT factor { printf("sqrt ");};
 factor: atomic;
+
+//TODO
+comp: atomic EQ atomic{printf("eq\n")}
+comp: atomic NEQ atomic{printf("ne\n")}
+comp: atomic LT atomic{printf("lt\n")}
+comp: atomic GT atomic{printf("gt\n")}
+comp: atomic LEQ atomic{printf("le\n")}
+comp: atomic GEQ atomic{printf("ge\n")}
 
 
 
