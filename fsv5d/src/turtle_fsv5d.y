@@ -60,11 +60,11 @@ stmt: WHILE OPEN {printf("{ ");} comp CLOSE {printf("\n{} {exit} ifelse\n");} bl
 
 stmt: COPEN stmtlist CCLOSE;	 
 
-stmt: IF OPEN comp CLOSE THEN {printf("\n{ ");} block ELSE {printf("} { ");} block  {printf("} ifelse\n");};
-stmt: IF OPEN comp CLOSE THEN {printf("\n{ ");} block {printf("} if\n");};
-
+stmt: IF OPEN comp CLOSE THEN ifblock ELSE {printf("} { ");} block  {printf("} ifelse\n");};
+stmt: IF OPEN comp CLOSE THEN ifblock {printf("} if\n");};
 
 block: OBRACE nestmtlist CBRACE;
+ifblock: {printf("\n{ ");} OBRACE nestmtlist CBRACE;
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};

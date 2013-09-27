@@ -1,9 +1,11 @@
-Rules useless in parser due to conflicts
+Nonterminals useless in grammar
 
-   23 $@6: /* empty */
+   elsestmt
 
 
-State 76 conflicts: 1 reduce/reduce
+Rules useless in grammar
+
+   48 elsestmt: /* empty */
 
 
 Grammar
@@ -44,15 +46,14 @@ Grammar
 
    20 $@4: /* empty */
 
-   21 $@5: /* empty */
+   21 stmt: IF OPEN comp CLOSE THEN ifblock ELSE $@4 block
+   22     | IF OPEN comp CLOSE THEN ifblock
 
-   22 stmt: IF OPEN comp CLOSE THEN $@4 block ELSE $@5 block
+   23 block: OBRACE nestmtlist CBRACE
 
-   23 $@6: /* empty */
+   24 $@5: /* empty */
 
-   24 stmt: IF OPEN comp CLOSE THEN $@6 block
-
-   25 block: OBRACE nestmtlist CBRACE
+   25 ifblock: $@5 OBRACE nestmtlist CBRACE
 
    26 expr: expr PLUS term
    27     | expr MINUS term
@@ -95,9 +96,9 @@ WHILE (263) 18
 STEP (264) 15
 TO (265) 15
 DO (266) 15
-IF (267) 22 24
-THEN (268) 22 24
-ELSE (269) 22
+IF (267) 21 22
+THEN (268) 21 22
+ELSE (269) 21
 COPEN (270) 19
 CCLOSE (271) 19
 SIN (272) 34
@@ -111,8 +112,8 @@ PLUS (279) 26 33
 MINUS (280) 27 32
 TIMES (281) 29
 DIV (282) 30
-OPEN (283) 18 22 24 44
-CLOSE (284) 18 22 24 44
+OPEN (283) 18 21 22 44
+CLOSE (284) 18 21 22 44
 ASSIGN (285) 10 15
 EQ (286) 38
 NEQ (287) 39
@@ -120,8 +121,8 @@ LT (288) 40
 GT (289) 41
 GEQ (290) 43
 LEQ (291) 42
-OBRACE (292) 25
-CBRACE (293) 25
+OBRACE (292) 23 25
+CBRACE (293) 23 25
 
 
 Nonterminals, with rules where they appear
@@ -141,9 +142,9 @@ decl (44)
 stmtlist (45)
     on left: 7 8, on right: 1 8 9 19
 nestmtlist (46)
-    on left: 9, on right: 25
+    on left: 9, on right: 23 25
 stmt (47)
-    on left: 10 11 12 13 15 18 19 22 24, on right: 8 9 15
+    on left: 10 11 12 13 15 18 19 21 22, on right: 8 9 15
 $@1 (48)
     on left: 14, on right: 15
 $@2 (49)
@@ -151,13 +152,13 @@ $@2 (49)
 $@3 (50)
     on left: 17, on right: 18
 $@4 (51)
-    on left: 20, on right: 22
-$@5 (52)
-    on left: 21, on right: 22
-$@6 (53)
-    on left: 23, on right: 24
-block (54)
-    on left: 25, on right: 18 22 24
+    on left: 20, on right: 21
+block (52)
+    on left: 23, on right: 18 21
+ifblock (53)
+    on left: 25, on right: 21 22
+$@5 (54)
+    on left: 24, on right: 25
 expr (55)
     on left: 26 27 28, on right: 10 11 12 13 15 26 27 44
 term (56)
@@ -165,7 +166,7 @@ term (56)
 factor (57)
     on left: 32 33 34 35 36 37, on right: 29 30 31 34 35 36
 comp (58)
-    on left: 38 39 40 41 42 43, on right: 18 22 24
+    on left: 38 39 40 41 42 43, on right: 18 21 22
 atomic (59)
     on left: 44 45 46 47, on right: 32 33 37 38 39 40 41 42 43
 
@@ -333,8 +334,8 @@ state 13
 
 state 14
 
-   22 stmt: IF . OPEN comp CLOSE THEN $@4 block ELSE $@5 block
-   24     | IF . OPEN comp CLOSE THEN $@6 block
+   21 stmt: IF . OPEN comp CLOSE THEN ifblock ELSE $@4 block
+   22     | IF . OPEN comp CLOSE THEN ifblock
 
     OPEN  shift, and go to state 37
 
@@ -572,8 +573,8 @@ state 36
 
 state 37
 
-   22 stmt: IF OPEN . comp CLOSE THEN $@4 block ELSE $@5 block
-   24     | IF OPEN . comp CLOSE THEN $@6 block
+   21 stmt: IF OPEN . comp CLOSE THEN ifblock ELSE $@4 block
+   22     | IF OPEN . comp CLOSE THEN ifblock
 
     FLOAT   shift, and go to state 23
     ID      shift, and go to state 24
@@ -798,8 +799,8 @@ state 54
 
 state 55
 
-   22 stmt: IF OPEN comp . CLOSE THEN $@4 block ELSE $@5 block
-   24     | IF OPEN comp . CLOSE THEN $@6 block
+   21 stmt: IF OPEN comp . CLOSE THEN ifblock ELSE $@4 block
+   22     | IF OPEN comp . CLOSE THEN ifblock
 
     CLOSE  shift, and go to state 66
 
@@ -904,8 +905,8 @@ state 65
 
 state 66
 
-   22 stmt: IF OPEN comp CLOSE . THEN $@4 block ELSE $@5 block
-   24     | IF OPEN comp CLOSE . THEN $@6 block
+   21 stmt: IF OPEN comp CLOSE . THEN ifblock ELSE $@4 block
+   22     | IF OPEN comp CLOSE . THEN ifblock
 
     THEN  shift, and go to state 76
 
@@ -1020,15 +1021,13 @@ state 75
 
 state 76
 
-   22 stmt: IF OPEN comp CLOSE THEN . $@4 block ELSE $@5 block
-   24     | IF OPEN comp CLOSE THEN . $@6 block
+   21 stmt: IF OPEN comp CLOSE THEN . ifblock ELSE $@4 block
+   22     | IF OPEN comp CLOSE THEN . ifblock
 
-    OBRACE    reduce using rule 20 ($@4)
-    OBRACE    [reduce using rule 23 ($@6)]
-    $default  reduce using rule 20 ($@4)
+    $default  reduce using rule 24 ($@5)
 
-    $@4  go to state 85
-    $@6  go to state 86
+    ifblock  go to state 85
+    $@5      go to state 86
 
 
 state 77
@@ -1095,20 +1094,19 @@ state 84
 
 state 85
 
-   22 stmt: IF OPEN comp CLOSE THEN $@4 . block ELSE $@5 block
+   21 stmt: IF OPEN comp CLOSE THEN ifblock . ELSE $@4 block
+   22     | IF OPEN comp CLOSE THEN ifblock .
 
-    OBRACE  shift, and go to state 88
+    ELSE  shift, and go to state 90
 
-    block  go to state 90
+    $default  reduce using rule 22 (stmt)
 
 
 state 86
 
-   24 stmt: IF OPEN comp CLOSE THEN $@6 . block
+   25 ifblock: $@5 . OBRACE nestmtlist CBRACE
 
-    OBRACE  shift, and go to state 88
-
-    block  go to state 91
+    OBRACE  shift, and go to state 91
 
 
 state 87
@@ -1133,7 +1131,7 @@ state 87
 
 state 88
 
-   25 block: OBRACE . nestmtlist CBRACE
+   23 block: OBRACE . nestmtlist CBRACE
 
     $default  reduce using rule 7 (stmtlist)
 
@@ -1150,16 +1148,21 @@ state 89
 
 state 90
 
-   22 stmt: IF OPEN comp CLOSE THEN $@4 block . ELSE $@5 block
+   21 stmt: IF OPEN comp CLOSE THEN ifblock ELSE . $@4 block
 
-    ELSE  shift, and go to state 95
+    $default  reduce using rule 20 ($@4)
+
+    $@4  go to state 95
 
 
 state 91
 
-   24 stmt: IF OPEN comp CLOSE THEN $@6 block .
+   25 ifblock: $@5 OBRACE . nestmtlist CBRACE
 
-    $default  reduce using rule 24 (stmt)
+    $default  reduce using rule 7 (stmtlist)
+
+    stmtlist    go to state 93
+    nestmtlist  go to state 96
 
 
 state 92
@@ -1168,7 +1171,7 @@ state 92
    26 expr: expr . PLUS term
    27     | expr . MINUS term
 
-    DO     shift, and go to state 96
+    DO     shift, and go to state 97
     PLUS   shift, and go to state 47
     MINUS  shift, and go to state 48
 
@@ -1187,35 +1190,42 @@ state 93
     COPEN  shift, and go to state 15
     ID     shift, and go to state 16
 
-    stmt  go to state 97
+    stmt  go to state 98
 
 
 state 94
 
-   25 block: OBRACE nestmtlist . CBRACE
+   23 block: OBRACE nestmtlist . CBRACE
 
-    CBRACE  shift, and go to state 98
+    CBRACE  shift, and go to state 99
 
 
 state 95
 
-   22 stmt: IF OPEN comp CLOSE THEN $@4 block ELSE . $@5 block
+   21 stmt: IF OPEN comp CLOSE THEN ifblock ELSE $@4 . block
 
-    $default  reduce using rule 21 ($@5)
+    OBRACE  shift, and go to state 88
 
-    $@5  go to state 99
+    block  go to state 100
 
 
 state 96
+
+   25 ifblock: $@5 OBRACE nestmtlist . CBRACE
+
+    CBRACE  shift, and go to state 101
+
+
+state 97
 
    15 stmt: FOR ID ASSIGN expr STEP expr TO expr DO . $@1 stmt
 
     $default  reduce using rule 14 ($@1)
 
-    $@1  go to state 100
+    $@1  go to state 102
 
 
-state 97
+state 98
 
     8 stmtlist: stmtlist stmt .
     9 nestmtlist: stmtlist stmt .
@@ -1224,23 +1234,28 @@ state 97
     $default  reduce using rule 8 (stmtlist)
 
 
-state 98
-
-   25 block: OBRACE nestmtlist CBRACE .
-
-    $default  reduce using rule 25 (block)
-
-
 state 99
 
-   22 stmt: IF OPEN comp CLOSE THEN $@4 block ELSE $@5 . block
+   23 block: OBRACE nestmtlist CBRACE .
 
-    OBRACE  shift, and go to state 88
-
-    block  go to state 101
+    $default  reduce using rule 23 (block)
 
 
 state 100
+
+   21 stmt: IF OPEN comp CLOSE THEN ifblock ELSE $@4 block .
+
+    $default  reduce using rule 21 (stmt)
+
+
+state 101
+
+   25 ifblock: $@5 OBRACE nestmtlist CBRACE .
+
+    $default  reduce using rule 25 (ifblock)
+
+
+state 102
 
    15 stmt: FOR ID ASSIGN expr STEP expr TO expr DO $@1 . stmt
 
@@ -1253,17 +1268,10 @@ state 100
     COPEN  shift, and go to state 15
     ID     shift, and go to state 16
 
-    stmt  go to state 102
+    stmt  go to state 103
 
 
-state 101
-
-   22 stmt: IF OPEN comp CLOSE THEN $@4 block ELSE $@5 block .
-
-    $default  reduce using rule 22 (stmt)
-
-
-state 102
+state 103
 
    15 stmt: FOR ID ASSIGN expr STEP expr TO expr DO $@1 stmt .
 
