@@ -52,10 +52,8 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 		 
 		 
-stmt: WHILE OPEN {printf("{ ");} 
-			comp CLOSE OBRACE {printf("{} {exit} ifelse\n");}
-		stmtlist 
-		CBRACE {printf("} loop\nclosepath\n");};
+stmt: WHILE OPEN ID LT NUMBER CLOSE OBRACE stmtlist CBRACE {printf("HERE");};
+
 stmt: COPEN stmtlist CCLOSE;	 
 
 
@@ -77,7 +75,7 @@ factor: atomic;
 //TODO
 //comp: atomic EQ atomic{printf("eq\n");};
 //comp: atomic NEQ atomic{printf("ne\n");};
-comp: ID LT NUMBER {printf("lt\n");};
+comp: ID LT NUMBER {printf("%s %d lt\n", $1->symbol, $3);};
 //comp: atomic GT atomic{printf("gt\n");};
 //comp: atomic LEQ atomic{printf("le\n");};
 //comp: atomic GEQ atomic{printf("ge\n");};
@@ -93,6 +91,7 @@ atomic: ID {printf("tlt%s ", $1->symbol);};
 %%
 int yyerror(char *msg)
 {  fprintf(stderr,"Error: %s\n",msg);
+//   fprintf("In line: %d\n On token: %s",yylineno, yytext)
    return 0;
 }
 
