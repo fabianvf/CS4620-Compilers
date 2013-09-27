@@ -1829,8 +1829,8 @@ yyreturn:
 #line 91 "turtle_fsv5d.y"
 
 int yyerror(char *msg)
-{  fprintf(stderr,"Error: %s\n",msg);
-//   fprintf("In line: %d\n On token: %s",yylineno, yytext)
+{  printf(stderr,"Error: %s\n",msg);
+   printf("On token: %d",yychar);
    return 0;
 }
 

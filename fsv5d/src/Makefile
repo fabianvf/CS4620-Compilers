@@ -23,5 +23,5 @@ turtle: turtle_fsv5d.tab.o lex.yy.o symtab.c
 	gcc lex.yy.o turtle_fsv5d.tab.o symtab.c -lfl -o turtle
 
 clean:
-	rm -f turtle lex.* turtle.tab.* *.o eins.ps
+	rm -f turtle lex.* turtle_fsv5d.tab.* *.o eins.ps
 

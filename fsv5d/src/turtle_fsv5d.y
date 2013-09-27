@@ -52,7 +52,7 @@ stmt: FOR ID ASSIGN expr
 	     stmt {printf("} for\n");};
 		 
 		 
-//stmt: WHILE OPEN ID LT NUMBER CLOSE OBRACE stmtlist CBRACE {printf("HERE");};
+stmt: WHILE OPEN ID LT NUMBER CLOSE OBRACE stmtlist CBRACE {printf("HERE");};
 
 stmt: COPEN stmtlist CCLOSE;	 
 
@@ -90,8 +90,8 @@ atomic: ID {printf("tlt%s ", $1->symbol);};
 
 %%
 int yyerror(char *msg)
-{  fprintf(stderr,"Error: %s\n",msg);
-//   fprintf("In line: %d\n On token: %s",yylineno, yytext)
+{  printf(stderr,"Error: %s\n",msg);
+   printf("On token: %d",yychar);
    return 0;
 }
 
