@@ -50,10 +50,12 @@ stmt: FOR ID ASSIGN expr
 	  TO expr
 	  DO {printf("{ /tlt%s exch store\n",$2->symbol);} 
 	     stmt {printf("} for\n");};
+		 
+		 
 stmt: WHILE OPEN {printf("{ ");} 
 			comp CLOSE OBRACE {printf("{} {exit} ifelse\n");}
 		stmtlist 
-		CBRACE {printf("} loop\n");};
+		CBRACE {printf("} loop\nclosepath\n");};
 stmt: COPEN stmtlist CCLOSE;	 
 
 
@@ -73,12 +75,12 @@ factor: SQRT factor { printf("sqrt ");};
 factor: atomic;
 
 //TODO
-comp: atomic EQ atomic{printf("eq\n");};
-comp: atomic NEQ atomic{printf("ne\n");};
-comp: atomic LT atomic{printf("lt\n");};
-comp: atomic GT atomic{printf("gt\n");};
-comp: atomic LEQ atomic{printf("le\n");};
-comp: atomic GEQ atomic{printf("ge\n");};
+//comp: atomic EQ atomic{printf("eq\n");};
+//comp: atomic NEQ atomic{printf("ne\n");};
+comp: ID LT NUMBER {printf("lt\n");};
+//comp: atomic GT atomic{printf("gt\n");};
+//comp: atomic LEQ atomic{printf("le\n");};
+//comp: atomic GEQ atomic{printf("ge\n");};
 
 
 
