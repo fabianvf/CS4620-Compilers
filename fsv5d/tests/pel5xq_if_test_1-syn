@@ -1,0 +1,16 @@
+// If, else, and conditionals 
+
+VAR a;
+VAR b;
+VAR c;
+VAR d;
+VAR index;
+
+a = 1;
+b = 11;
+c = 22;
+d = c - d + a;
+
+IF (a < b) THEN {
+	IF (c < b) THEN a = 2 ELSE b = b + 2
+}
