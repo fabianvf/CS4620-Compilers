@@ -11,6 +11,11 @@ b = 11;
 c = 22;
 d = c - d + a;
 
-IF (a < b) THEN {
-	IF (c < b) THEN a = 2 ELSE b = b + 2
+IF (c < b) THEN {
+
+} ELSE IF(b==c) THEN {
+a = b + c;
+} ELSE IF (c > a) THEN {
+IF (d == a) THEN c = b + 1; ELSE b = b - 2;
 }
+// Very robust!

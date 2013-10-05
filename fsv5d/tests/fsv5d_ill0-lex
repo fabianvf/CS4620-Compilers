@@ -1,6 +1,6 @@
 // tests with illegal characters
 
-GO a , b
+GO _a_ , b
 TURN ;{}
 JUMP b**c; \\
 DO c^c;
