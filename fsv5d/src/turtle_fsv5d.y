@@ -42,7 +42,7 @@ decl: VAR ID SEMICOLON { printf("/tlt%s 0 def\n",$2->symbol);} ;
 stmtlist: ;
 stmtlist: stmtlist stmt ;
 
-nestmtlist: stmtlist stmt;
+//nestmtlist: stmtlist stmt;
 
 stmt: ID ASSIGN expr SEMICOLON {printf("/tlt%s exch store\n",$1->symbol);} ;
 stmt: GO expr SEMICOLON {printf("0 rlineto\n");};
@@ -63,8 +63,11 @@ stmt: COPEN stmtlist CCLOSE;
 stmt: IF OPEN comp CLOSE THEN ifblock ELSE {printf("} { ");} block  {printf("} ifelse\n");};
 stmt: IF OPEN comp CLOSE THEN ifblock {printf("} if\n");};
 
-block: OBRACE nestmtlist CBRACE;
-ifblock: {printf("\n{ ");} OBRACE nestmtlist CBRACE;
+block: stmt;
+block: OBRACE stmtlist CBRACE;
+
+ifblock: {printf("\n{ ");} OBRACE stmtlist CBRACE;
+ifblock: {printf("\n{ ");} stmt;
 
 expr: expr PLUS term { printf("add ");};
 expr: expr MINUS term { printf("sub ");};
