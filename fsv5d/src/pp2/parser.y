@@ -47,6 +47,8 @@ void yyerror(const char *msg); // standard error-handling routine
     Decl *decl;
     VarDecl *var;
     FnDecl *fDecl;
+    ClassDecl *cDecl;
+    InterfaceDecl *iDecl;
     Type *type;
     Stmt *stmt;
     List<Stmt*> *stmtList;
@@ -91,6 +93,12 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <var>       Variable VarDecl
 %type <varList>   Formals FormalList VarDecls
 %type <fDecl>     FnDecl FnHeader
+%type <iDecl>     InterfaceDecl
+%type <cDecl>	  ClassDecl
+%type <field>     Field
+%type <fields>    Fields
+%type <prototype> Prototype
+%type <protoList> ProtoList
 %type <stmtList>  StmtList
 %type <stmt>      StmtBlock
 %%
@@ -121,7 +129,30 @@ Decl      :    VarDecl              { $$=$1; }
 	  |    InterfaceDecl	    {}
 ;
 
-/*ClassDecl :    */
+InterfaceDecl: T_Interface T_Identifier '{' ProtoList '}' {}
+
+ProtoList: {}
+	 | Prototype ProtoList {}
+
+Prototype : Type T_Identifier '(' Formals ')' ';' {}
+	  | T_Void T_Identifier '(' Formals ')' ';' {}
+
+ClassDecl :    T_Class T_Identifier  PolyList '{' Fields '}' {}
+;
+PolyList : T_Extends ImplList {}
+	 | ImplList {}  
+;
+Fields : {}
+       | Field Fields {}
+;
+Field : VarDecl {}
+      |  FnDecl {}
+;
+ImplList: {}
+	| T_Implements T_Identifier {}
+	| ',' T_Implements T_Identifier {} 
+;
+
 VarDecl   :    Variable ';'         { $$=$1; }
 ; 
 
