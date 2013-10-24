@@ -64,7 +64,7 @@ void yyerror(const char *msg); // standard error-handling routine
 /* Tokens
  * ------
  * Here we tell yacc about all the token types that we are using.
- * Yacc will assign unique numbers to these and export the #define
+ * Yacc will assign unique numbers to these and export the #defineR
  * in the generated y.tab.h header file.
  */
 %token   T_Void T_Bool T_Int T_Double T_String T_Class 
@@ -120,6 +120,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %left '!'
 %left  '.' 
 %left '(' '['
+%left UNARY
 
 %%
 /* Rules
@@ -225,6 +226,7 @@ Stmt : PeExpr ';'
      | PrintStmt {} 
      | StmtBlock {}
 ;
+	 
 PeExpr : {} | Expr
 ;
 
@@ -236,7 +238,7 @@ IfStmt : T_If '(' Expr ')' Stmt %prec LTELSE  {}
 WhileStmt : T_While '('Expr')' Stmt {}
 ;
 
-ForStmt : T_For '(' PeExpr ';' Expr ';' PeExpr ')' Stmt
+ForStmt : T_For '(' PeExpr ';' Expr ';' PeExpr ')' Stmt {}
 ;
 
 ReturnStmt : T_Return PeExpr ';' {}
@@ -248,24 +250,24 @@ BreakStmt : T_Break ';' {}
 PrintStmt : T_Print '(' NeExprList ')' ';' {}
 ;
 
-NeExprList : Expr ExprList {}
+NeExprList : NeExprList',' Expr | Expr {}
 ;
 
-ExprList : {} | Expr ExprList {} | ','Expr ExprList {}
+ExprList :NeExprList {} | {} 
 ;
 
 Expr : LValue '=' Expr {}
 	| Constant {}
 	| LValue {} 
 	| T_This {} 
-	| Call {} 
+	| Call {}
 	| '(' Expr ')' {}
 	| Expr '+' Expr {}
-//TODO:	| Expr '-' Expr {}
+	| Expr '-' Expr {}
 	| Expr '*' Expr {}
 	| Expr '/' Expr {}
 	| Expr '%' Expr {}
-	| '-' Expr  {}
+	| '-' Expr %prec UNARY  {$$ = new ArithmeticExpr(new Operator(@1, "-"), $2);}
 	| Expr '<' Expr {}
 	| Expr T_LessEqual Expr {}
 	| Expr '>' Expr {}
@@ -278,7 +280,7 @@ Expr : LValue '=' Expr {}
 	| T_ReadInteger '('')' {}
 	| T_ReadLine '('')' {}
 	| T_New '(' T_Identifier ')' {}
-	| T_NewArray '(' Expr ',' Type ')'
+	| T_NewArray '(' Expr ',' Type ')' {}
 ;
 
 LValue : T_Identifier {}
