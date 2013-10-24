@@ -32,6 +32,7 @@ void yyerror(const char *msg); // standard error-handling routine
 /* yylval 
  * ------
  * Here we define the type of the yylval global variable that is used by
+
  * the scanner to store attibute information about the token just scanned
  * and thus communicate that information to the parser. 
  *
@@ -51,10 +52,13 @@ void yyerror(const char *msg); // standard error-handling routine
     InterfaceDecl *iDecl;
     Type *type;
     Stmt *stmt;
+    Expr *expr;
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
+    List<Expr*> *exprList;
 }
+
 
 
 /* Tokens
@@ -100,7 +104,23 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <prototype> Prototype
 %type <protoList> ProtoList
 %type <stmtList>  StmtList
-%type <stmt>      StmtBlock
+%type <stmt>      StmtBlock IfStmt WhileStmt ForStmt BreakStmt ReturnStmt PrintStmt
+%type <expr> 	  Expr PeExpr
+%type <exprList>  ExprList NeExprList
+
+
+
+//Precedence Rules
+%nonassoc LTELSE
+%nonassoc T_Else
+%left '<' '>' T_LessEqual T_GreaterEqual T_Equal T_NotEqual '='
+%left T_Or T_And
+%left '+' '-'
+%left '/' '*' '%'
+%left '!'
+%left  '.' 
+%left '(' '['
+
 %%
 /* Rules
  * -----
@@ -194,8 +214,89 @@ VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
 ;
 
 StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; }
+	  | Stmt StmtList {}
+;
+Stmt : PeExpr ';'
+     |  IfStmt {}
+     | WhileStmt {}
+     | ForStmt {}
+     | BreakStmt {}
+     | ReturnStmt {}
+     | PrintStmt {} 
+     | StmtBlock {}
+;
+PeExpr : {} | Expr
 ;
 
+IfStmt : T_If '(' Expr ')' Stmt %prec LTELSE  {}
+	| T_If '(' Expr ')' Stmt T_Else Stmt {}
+;
+
+
+WhileStmt : T_While '('Expr')' Stmt {}
+;
+
+ForStmt : T_For '(' PeExpr ';' Expr ';' PeExpr ')' Stmt
+;
+
+ReturnStmt : T_Return PeExpr ';' {}
+;
+
+BreakStmt : T_Break ';' {}
+;
+
+PrintStmt : T_Print '(' NeExprList ')' ';' {}
+;
+
+NeExprList : Expr ExprList {}
+;
+
+ExprList : {} | Expr ExprList {} | ','Expr ExprList {}
+;
+
+Expr : LValue '=' Expr {}
+	| Constant {}
+	| LValue {} 
+	| T_This {} 
+	| Call {} 
+	| '(' Expr ')' {}
+	| Expr '+' Expr {}
+//TODO:	| Expr '-' Expr {}
+	| Expr '*' Expr {}
+	| Expr '/' Expr {}
+	| Expr '%' Expr {}
+	| '-' Expr  {}
+	| Expr '<' Expr {}
+	| Expr T_LessEqual Expr {}
+	| Expr '>' Expr {}
+	| Expr T_GreaterEqual Expr {}
+	| Expr T_Equal Expr {}
+	| Expr T_NotEqual Expr {}
+	| Expr T_And Expr {}
+	| Expr T_Or Expr {}
+	| '!' Expr {}
+	| T_ReadInteger '('')' {}
+	| T_ReadLine '('')' {}
+	| T_New '(' T_Identifier ')' {}
+	| T_NewArray '(' Expr ',' Type ')'
+;
+
+LValue : T_Identifier {}
+	| Expr '.' T_Identifier {}
+	| Expr '['Expr']'{}
+;
+Call : T_Identifier '(' ExprList ')' {}
+	| Expr '.' T_Identifier '('ExprList ')' {}
+;
+
+/* Actuals is implemented under the name "ExprList" because I thought it was more readable */
+
+Constant : T_IntConstant {}
+	| T_DoubleConstant {}
+	| T_BoolConstant {}
+	| T_StringConstant {}
+	| T_Null {}  
+;
 %%
 
 /* The closing %% above marks the end of the Rules section and the beginning
