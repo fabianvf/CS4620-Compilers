@@ -31,7 +31,7 @@ void yyerror(const char *msg); // standard error-handling routine
  
 /* yylval 
  * ------
- * Here we define the type of the yylval global variable that is used by
+ * Here we dmefine the type of the yylval global variable that is used by
 
  * the scanner to store attibute information about the token just scanned
  * and thus communicate that information to the parser. 
@@ -53,6 +53,8 @@ void yyerror(const char *msg); // standard error-handling routine
     Type *type;
     Stmt *stmt;
     Expr *expr;
+    NamedType *namedtype;
+    List<NamedType*> *ntypeList;
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
@@ -91,22 +93,20 @@ void yyerror(const char *msg); // standard error-handling routine
  * of the union named "declList" which is of type List<Decl*>.
  * pp2: You'll need to add many of these of your own.
  */
-%type <declList>  DeclList 
-%type <decl>      Decl
+%type <declList>  DeclList ProtoList Fields
+%type <decl>      Decl Field Prototype
 %type <type>      Type 
 %type <var>       Variable VarDecl
 %type <varList>   Formals FormalList VarDecls
 %type <fDecl>     FnDecl FnHeader
 %type <iDecl>     InterfaceDecl
 %type <cDecl>	  ClassDecl
-%type <field>     Field
-%type <fields>    Fields
-%type <prototype> Prototype
-%type <protoList> ProtoList
 %type <stmtList>  StmtList
-%type <stmt>      StmtBlock IfStmt WhileStmt ForStmt BreakStmt ReturnStmt PrintStmt
-%type <expr> 	  Expr PeExpr
+%type <stmt>      StmtBlock IfStmt WhileStmt ForStmt BreakStmt ReturnStmt PrintStmt Stmt
+%type <expr> 	  Expr PeExpr Constant LValue Call
 %type <exprList>  ExprList NeExprList
+%type <namedtype> PeExtend
+%type <ntypeList> ImplList
 
 
 
@@ -129,9 +129,7 @@ void yyerror(const char *msg); // standard error-handling routine
  * %% markers which delimit the Rules section.
 	 
  */
-Program   :    DeclList            { 
-                                      @1; 
-                                      /* pp2: The @1 is needed to convince 
+Program   :    DeclList            {  /* pp2: The @1 is needed to convince 
                                        * yacc to set up yylloc. You can remove 
                                        * it once you have other uses of @n*/
                                       Program *program = new Program($1);
@@ -142,36 +140,37 @@ Program   :    DeclList            {
           ;
 
 DeclList  :    DeclList Decl        { ($$=$1)->Append($2); }
-          |    Decl                 { ($$ = new List<Decl*>)->Append($1); };
+          |    Decl                 { ($$ = new List<Decl*>)->Append($1); }
 
 Decl      :    VarDecl              { $$=$1; }
           |    FnDecl               { $$=$1; }
-	  |    ClassDecl	    {}
-	  |    InterfaceDecl	    {}
+	  |    ClassDecl	    { $$=$1; }
+	  |    InterfaceDecl	    { $$ = $1;}
 ;
 
-InterfaceDecl: T_Interface T_Identifier '{' ProtoList '}' {}
+InterfaceDecl: T_Interface T_Identifier '{' ProtoList '}' { $$ = new InterfaceDecl(new Identifier(@2, $2), $4);}
 
-ProtoList: {}
-	 | Prototype ProtoList {}
+ProtoList: {$$ = new List<Decl*>;}
+	 | Prototype ProtoList {$$=$2;
+				$$->Append($1);}
 
-Prototype : Type T_Identifier '(' Formals ')' ';' {}
-	  | T_Void T_Identifier '(' Formals ')' ';' {}
+Prototype : Type T_Identifier '(' Formals ')' ';' {$$ = new FnDecl(new Identifier(@2,$2), $1, $4);}
+	  | T_Void T_Identifier '(' Formals ')' ';' {$$ = new FnDecl(new Identifier(@2,$2), Type::voidType,$4);}
 
-ClassDecl :    T_Class T_Identifier  PolyList '{' Fields '}' {}
+ClassDecl :    T_Class T_Identifier PeExtend ImplList '{' Fields '}' { $$ = new ClassDecl(new Identifier(@2, $2), $3, $4, $6);}
 ;
-PolyList : T_Extends ImplList {}
-	 | ImplList {}  
+PeExtend : T_Extends T_Identifier {$$ = new NamedType(new Identifier(@2,$2));}
+	 | {$$ = NULL;}  
 ;
-Fields : {}
-       | Field Fields {}
+Fields : {$$ = new List<Decl*>;}
+	| Field Fields { $$ = $2; $$->Append($1);}
 ;
-Field : VarDecl {}
-      |  FnDecl {}
+Field : VarDecl {$$ = $1;}
+      |  FnDecl {$$ = $1;}
 ;
-ImplList: {}
-	| T_Implements T_Identifier {}
-	| ',' T_Implements T_Identifier {} 
+ImplList: {$$ = new List<NamedType*>;}
+	| T_Implements T_Identifier ImplList {$$ = $3; $$->Append(new NamedType(new Identifier(@2,$2)));}
+	| ',' T_Implements T_Identifier ImplList {$$ = $4; $$->Append(new NamedType(new Identifier(@3,$3)));} 
 ;
 
 VarDecl   :    Variable ';'         { $$=$1; }
@@ -217,87 +216,90 @@ VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
 StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; }
 	  | Stmt StmtList {}
 ;
-Stmt : PeExpr ';'
-     |  IfStmt {}
-     | WhileStmt {}
-     | ForStmt {}
-     | BreakStmt {}
-     | ReturnStmt {}
-     | PrintStmt {} 
-     | StmtBlock {}
+Stmt : PeExpr ';'{$$ = $1;}
+     |  IfStmt {$$ = $1;}
+     | WhileStmt {$$ = $1;}
+     | ForStmt {$$ = $1;}
+     | BreakStmt {$$ = $1;}
+     | ReturnStmt {$$ = $1;}
+     | PrintStmt {$$ = $1;} 
+     | StmtBlock {$$ = $1;}
 ;
 	 
-PeExpr : {} | Expr
+PeExpr : {$$ = new EmptyExpr;} 
+	| Expr { $$ =$1;}
 ;
 
-IfStmt : T_If '(' Expr ')' Stmt %prec LTELSE  {}
-	| T_If '(' Expr ')' Stmt T_Else Stmt {}
+IfStmt : T_If '(' Expr ')' Stmt %prec LTELSE  {$$ = new IfStmt($3, $5, NULL);}
+	| T_If '(' Expr ')' Stmt T_Else Stmt {$$ = new IfStmt($3, $5, $7);}
 ;
 
 
-WhileStmt : T_While '('Expr')' Stmt {}
+WhileStmt : T_While '('Expr')' Stmt {$$ = new WhileStmt($3, $5);}
 ;
 
-ForStmt : T_For '(' PeExpr ';' Expr ';' PeExpr ')' Stmt {}
+ForStmt : T_For '(' PeExpr ';' Expr ';' PeExpr ')' Stmt {$$ = new ForStmt($3, $5, $7, $9); }
 ;
 
-ReturnStmt : T_Return PeExpr ';' {}
+ReturnStmt : T_Return PeExpr ';' {$$ = new ReturnStmt(@1, $2);}
 ;
 
-BreakStmt : T_Break ';' {}
+BreakStmt : T_Break ';' {$$ = new BreakStmt(@1);}
 ;
 
-PrintStmt : T_Print '(' NeExprList ')' ';' {}
+PrintStmt : T_Print '(' NeExprList ')' ';' {$$ = new PrintStmt($3);}
 ;
 
-NeExprList : NeExprList',' Expr | Expr {}
+NeExprList : NeExprList',' Expr {$$ = $1; $$->Append($3);}
+	 | Expr {$$ = new List<Expr*>; $$->Append($1);}
 ;
 
-ExprList :NeExprList {} | {} 
+ExprList :NeExprList {$$ = $1;} 
+	| {$$ = new List<Expr*>;} 
 ;
 
-Expr : LValue '=' Expr {}
-	| Constant {}
-	| LValue {} 
-	| T_This {} 
-	| Call {}
-	| '(' Expr ')' {}
-	| Expr '+' Expr {}
-	| Expr '-' Expr {}
-	| Expr '*' Expr {}
-	| Expr '/' Expr {}
-	| Expr '%' Expr {}
+Expr : LValue '=' Expr { $$ = new AssignExpr($1, new Operator(@2, "="), $3);}
+	| Constant {$$ = $1;}
+	| LValue {$$ = $1;} 
+	| T_This {$$ = new This(@1);} 
+	| Call {$$ = $1;}
+	| '(' Expr ')' {$$ = $2;}
+	| Expr '+' Expr {$$ = new ArithmeticExpr($1, new Operator(@2, "+"), $3);}
+	| Expr '-' Expr {$$ = new ArithmeticExpr($1, new Operator(@2, "-"), $3);}
+	| Expr '*' Expr{ $$ = new ArithmeticExpr($1, new Operator(@2, "*"), $3);}   
+	| Expr '/' Expr {$$ = new ArithmeticExpr($1, new Operator(@2, "/"), $3);}
+	| Expr '%' Expr {$$ = new ArithmeticExpr($1, new Operator(@2, "%"), $3);}
 	| '-' Expr %prec UNARY  {$$ = new ArithmeticExpr(new Operator(@1, "-"), $2);}
-	| Expr '<' Expr {}
-	| Expr T_LessEqual Expr {}
-	| Expr '>' Expr {}
-	| Expr T_GreaterEqual Expr {}
-	| Expr T_Equal Expr {}
-	| Expr T_NotEqual Expr {}
-	| Expr T_And Expr {}
-	| Expr T_Or Expr {}
-	| '!' Expr {}
-	| T_ReadInteger '('')' {}
-	| T_ReadLine '('')' {}
-	| T_New '(' T_Identifier ')' {}
-	| T_NewArray '(' Expr ',' Type ')' {}
+	| Expr '<' Expr {$$ = new RelationalExpr($1, new Operator(@2, "<"), $3);}
+	| Expr T_LessEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, "<="), $3);}
+	| Expr '>' Expr {$$ = new RelationalExpr($1, new Operator(@2, ">"), $3);}
+	| Expr T_GreaterEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, ">="), $3);}
+	| Expr T_Equal Expr {$$ = new RelationalExpr($1, new Operator(@2, "="), $3);}
+	| Expr T_NotEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, "!="), $3);}
+	| Expr T_And Expr {$$ = new LogicalExpr($1, new Operator(@2, "&&"), $3);}
+	| Expr T_Or Expr {$$ = new LogicalExpr($1, new Operator(@2, "||"), $3);}
+	| '!' Expr {$$ = new LogicalExpr(new Operator(@2, "!"), $2);}
+	| T_ReadInteger '('')' {$$ = new ReadIntegerExpr(@1);}
+	| T_ReadLine '('')' {$$ = new ReadLineExpr(@1);}
+	| T_New '(' T_Identifier ')' {$$ = new NewExpr(@1, new NamedType(new Identifier(@3,$3)));}
+	| T_NewArray '(' Expr ',' Type ')' {$$ = new NewArrayExpr(@1,$3,$5);}
 ;
 
-LValue : T_Identifier {}
-	| Expr '.' T_Identifier {}
-	| Expr '['Expr']'{}
+LValue : T_Identifier {$$ = new FieldAccess(NULL, new Identifier(@1,$1));}
+	| Expr '.' T_Identifier {$$ = new FieldAccess($1, new Identifier(@3,$3));}
+	| Expr '['Expr']'{$$ = new ArrayAccess(@1,$1,$3);}
 ;
-Call : T_Identifier '(' ExprList ')' {}
-	| Expr '.' T_Identifier '('ExprList ')' {}
+Call : T_Identifier '(' ExprList ')' {$$ = new Call(@1,NULL, new Identifier(@1,$1), $3);}
+	| Expr '.' T_Identifier '('ExprList ')' {$$ = new Call(@1, $1, new Identifier(@3,$3), $5);}
 ;
 
-/* Actuals is implemented under the name "ExprList" because I thought it was more readable */
+/* Actuals is implemented under the name "ExprList" */
 
-Constant : T_IntConstant {}
-	| T_DoubleConstant {}
-	| T_BoolConstant {}
-	| T_StringConstant {}
-	| T_Null {}  
+Constant : T_IntConstant {$$ = new IntConstant(@1,$1);}
+	| T_DoubleConstant {$$ = new DoubleConstant(@1,$1);}
+	| T_BoolConstant {$$ = new BoolConstant(@1,$1);}
+	| T_StringConstant {$$ = new StringConstant(@1,$1);}
+	| T_Null {$$ = new NullConstant(@1);}  
 ;
 %%
 
