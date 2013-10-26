@@ -1,3 +1,4 @@
+
 /* File: parser.y
  * --------------
  * Yacc input file to generate the parser for the compiler.
@@ -59,6 +60,7 @@ void yyerror(const char *msg); // standard error-handling routine
     List<VarDecl*> *varList;
     List<Decl*> *declList;
     List<Expr*> *exprList;
+    List<Case*> *cases;
 }
 
 
@@ -74,7 +76,7 @@ void yyerror(const char *msg); // standard error-handling routine
 %token   T_And T_Or T_Null T_Extends T_This T_Interface T_Implements
 %token   T_While T_For T_If T_Else T_Return T_Break
 %token   T_New T_NewArray T_Print T_ReadInteger T_ReadLine
-
+%token   T_Switch T_Case T_Default
 %token   <identifier> T_Identifier
 %token   <stringConstant> T_StringConstant 
 %token   <integerConstant> T_IntConstant
@@ -102,11 +104,12 @@ void yyerror(const char *msg); // standard error-handling routine
 %type <iDecl>     InterfaceDecl
 %type <cDecl>	  ClassDecl
 %type <stmtList>  StmtList
-%type <stmt>      StmtBlock IfStmt WhileStmt ForStmt BreakStmt ReturnStmt PrintStmt Stmt
+%type <stmt>      StmtBlock IfStmt WhileStmt ForStmt BreakStmt ReturnStmt PrintStmt Stmt SwitchStmt
 %type <expr> 	  Expr PeExpr Constant LValue Call
 %type <exprList>  ExprList NeExprList
 %type <namedtype> PeExtend
 %type <ntypeList> ImplList
+%type <cases>	  Cases
 
 
 
@@ -224,7 +227,8 @@ Stmt : PeExpr ';'{$$ = $1;}
      | ForStmt {$$ = $1;}
      | BreakStmt {$$ = $1;}
      | ReturnStmt {$$ = $1;}
-     | PrintStmt {$$ = $1;} 
+     | PrintStmt {$$ = $1;}
+     | SwitchStmt{$$=$1;}
      | StmtBlock {$$ = $1;}
 ;
 	 
@@ -252,6 +256,17 @@ BreakStmt : T_Break ';' {$$ = new BreakStmt(@1);}
 PrintStmt : T_Print '(' NeExprList ')' ';' {$$ = new PrintStmt($3);}
 ;
 
+SwitchStmt : T_Switch '(' Expr ')' '{' Cases '}' {$$ = new SwitchStmt($3, $6);}
+;
+
+Cases : T_Case T_IntConstant ':' StmtList Cases {}
+	| T_Case T_IntConstant ':' StmtList Default';' {}
+	| T_Case T_IntConstant ':' StmtList {}
+;
+
+Default: T_Default StmtList {}
+
+ 
 NeExprList : NeExprList',' Expr {$$ = $1; $$->Append($3);}
 	 | Expr {$$ = new List<Expr*>; $$->Append($1);}
 ;
@@ -327,5 +342,5 @@ Constant : T_IntConstant {$$ = new IntConstant(@1,$1);}
 void InitParser()
 {
    PrintDebug("parser", "Initializing parser");
-   yydebug = false;
+   //yydebug = false;
 }
