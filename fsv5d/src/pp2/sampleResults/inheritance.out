@@ -1,0 +1,68 @@
+
+   Program: 
+  1   ClassDecl: 
+  1      Identifier: Animal
+ 13      FnDecl: 
+ 13         (return type) NamedType: 
+ 13            Identifier: Animal
+ 13         Identifier: GetMom
+            (body) StmtBlock: 
+  9      FnDecl: 
+            (return type) Type: int
+  9         Identifier: GetHeight
+            (body) StmtBlock: 
+  4      FnDecl: 
+            (return type) Type: void
+  4         Identifier: InitAnimal
+  4         (formals) VarDecl: 
+               Type: int
+  4            Identifier: h
+  4         (formals) VarDecl: 
+  4            NamedType: 
+  4               Identifier: Animal
+  4            Identifier: mom
+            (body) StmtBlock: 
+  3      VarDecl: 
+  3         NamedType: 
+  3            Identifier: Animal
+  3         Identifier: mother
+  2      VarDecl: 
+            Type: int
+  2         Identifier: height
+ 18   ClassDecl: 
+ 18      Identifier: Cow
+ 18      (extends) NamedType: 
+ 18         Identifier: Animal
+ 24      FnDecl: 
+            (return type) Type: bool
+ 24         Identifier: IsSpottedCow
+            (body) StmtBlock: 
+ 20      FnDecl: 
+            (return type) Type: void
+ 20         Identifier: InitCow
+ 20         (formals) VarDecl: 
+               Type: int
+ 20            Identifier: h
+ 20         (formals) VarDecl: 
+ 20            NamedType: 
+ 20               Identifier: Animal
+ 20            Identifier: m
+ 20         (formals) VarDecl: 
+               Type: bool
+ 20            Identifier: spot
+            (body) StmtBlock: 
+ 19      VarDecl: 
+            Type: bool
+ 19         Identifier: isSpotted
+ 30   FnDecl: 
+         (return type) Type: void
+ 30      Identifier: main
+         (body) StmtBlock: 
+ 31         VarDecl: 
+ 31            NamedType: 
+ 31               Identifier: Cow
+ 31            Identifier: betsy
+ 32         VarDecl: 
+ 32            NamedType: 
+ 32               Identifier: Animal
+ 32            Identifier: b

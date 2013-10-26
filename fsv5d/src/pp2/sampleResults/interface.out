@@ -1,0 +1,76 @@
+
+   Program: 
+  1   InterfaceDecl: 
+  1      Identifier: Colorable
+  3      FnDecl: 
+            (return type) Type: void
+  3         Identifier: SetColor
+  3         (formals) VarDecl: 
+  3            NamedType: 
+  3               Identifier: Color
+  3            Identifier: c
+  2      FnDecl: 
+  2         (return type) NamedType: 
+  2            Identifier: Color
+  2         Identifier: GetColor
+  6   ClassDecl: 
+  6      Identifier: Color
+ 14      VarDecl: 
+            Type: int
+ 14         Identifier: blue
+ 13      VarDecl: 
+            Type: int
+ 13         Identifier: green
+ 12      VarDecl: 
+            Type: int
+ 12         Identifier: red
+  7      FnDecl: 
+            (return type) Type: void
+  7         Identifier: SetRGB
+  7         (formals) VarDecl: 
+               Type: int
+  7            Identifier: red
+  7         (formals) VarDecl: 
+               Type: int
+  7            Identifier: green
+  7         (formals) VarDecl: 
+               Type: int
+  7            Identifier: blue
+            (body) StmtBlock: 
+ 17   ClassDecl: 
+ 17      Identifier: Shape
+ 17      (implements) NamedType: 
+ 17         Identifier: Colorable
+ 22      VarDecl: 
+ 22         NamedType: 
+ 22            Identifier: Color
+ 22         Identifier: myColor
+ 20      FnDecl: 
+            (return type) Type: void
+ 20         Identifier: SetColor
+ 20         (formals) VarDecl: 
+ 20            NamedType: 
+ 20               Identifier: Color
+ 20            Identifier: c
+            (body) StmtBlock: 
+ 19      FnDecl: 
+ 19         (return type) NamedType: 
+ 19            Identifier: Color
+ 19         Identifier: GetColor
+            (body) StmtBlock: 
+ 25   ClassDecl: 
+ 25      Identifier: Rectangle
+ 25      (extends) NamedType: 
+ 25         Identifier: Shape
+ 29   FnDecl: 
+         (return type) Type: void
+ 29      Identifier: main
+         (body) StmtBlock: 
+ 30         VarDecl: 
+ 30            NamedType: 
+ 30               Identifier: Colorable
+ 30            Identifier: s
+ 31         VarDecl: 
+ 31            NamedType: 
+ 31               Identifier: Color
+ 31            Identifier: green
