@@ -51,7 +51,11 @@ DOUBLE            ({INTEGER}"."{DIGIT}*{EXPONENT}?)
 BEG_STRING        (\"[^"\n]*)
 STRING            ({BEG_STRING}\")
 IDENTIFIER        ([a-zA-Z][a-zA-Z_0-9]*)
+<<<<<<< HEAD
 OPERATOR          ([-+/*%=.,;!<>()[\]{}])
+=======
+OPERATOR          ([-+/*%=.,;!<>()[\]{}]:)
+>>>>>>> parent of 1042108... Fixed scanner
 BEG_COMMENT       ("/*")
 END_COMMENT       ("*/")
 SINGLE_COMMENT    ("//"[^\n]*)
@@ -102,7 +106,13 @@ SINGLE_COMMENT    ("//"[^\n]*)
 "Print"             { return T_Print;       }
 "ReadInteger"       { return T_ReadInteger; }
 "ReadLine"          { return T_ReadLine;    }
+<<<<<<< HEAD
 
+=======
+"switch"	    { return T_Switch;      }
+"case"	            { return T_Case;	    }
+"default"	    { return T_Default;	    }
+>>>>>>> parent of 1042108... Fixed scanner
 
 
  /* -------------------- Operators ----------------------------- */
