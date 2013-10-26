@@ -1,4 +1,4 @@
-/* File: scanner.l
+/* File:  scanner.l
  * ----------------
  * Lex inupt file to generate the scanner for the compiler.
  */
@@ -22,7 +22,7 @@
 static int curLineNum, curColNum;
 List<const char*> savedLines;
 
-static void DoBeforeEachAction();
+static void DoBeforeEachAction(); 
 #define YY_USER_ACTION DoBeforeEachAction();
 
 %}
@@ -42,99 +42,98 @@ static void DoBeforeEachAction();
  * -----------
  * To make our rules more readable, we establish some definitions here.
  */
-DIGIT ([0-9])
-HEX_DIGIT ([0-9a-fA-F])
-HEX_INTEGER (0[Xx]{HEX_DIGIT}+)
-INTEGER ({DIGIT}+)
-EXPONENT ([Ee][-+]?{INTEGER})
-DOUBLE ({INTEGER}"."{DIGIT}*{EXPONENT}?)
-BEG_STRING (\"[^"\n]*)
-STRING ({BEG_STRING}\")
-IDENTIFIER ([a-zA-Z][a-zA-Z_0-9]*)
-OPERATOR ([-+/*%=.,;:!<>()[\]{}])
-BEG_COMMENT ("/*")
-END_COMMENT ("*/")
-SINGLE_COMMENT ("//"[^\n]*)
+DIGIT             ([0-9])
+HEX_DIGIT         ([0-9a-fA-F])
+HEX_INTEGER       (0[Xx]{HEX_DIGIT}+)
+INTEGER           ({DIGIT}+)
+EXPONENT          ([Ee][-+]?{INTEGER})
+DOUBLE            ({INTEGER}"."{DIGIT}*{EXPONENT}?)
+BEG_STRING        (\"[^"\n]*)
+STRING            ({BEG_STRING}\")
+IDENTIFIER        ([a-zA-Z][a-zA-Z_0-9]*)
+OPERATOR          ([-+/*%=.,;!<>()[\]{}]:)
+BEG_COMMENT       ("/*")
+END_COMMENT       ("*/")
+SINGLE_COMMENT    ("//"[^\n]*)
 
-%% /* BEGIN RULES SECTION */
+%%             /* BEGIN RULES SECTION */
 
-<COPY>.* { char curLine[512];
+<COPY>.*               { char curLine[512];
                          //strncpy(curLine, yytext, sizeof(curLine));
                          savedLines.Append(strdup(yytext));
                          curColNum = 1; yy_pop_state(); yyless(0); }
-<COPY><<EOF>> { yy_pop_state(); }
-<*>\n { curLineNum++; curColNum = 1;
+<COPY><<EOF>>          { yy_pop_state(); }
+<*>\n                  { curLineNum++; curColNum = 1;
                          if (YYSTATE == COPY) savedLines.Append("");
                          else yy_push_state(COPY); }
 
-[ ]+ { /* ignore all spaces */ }
-<*>[\t] { curColNum += TAB_SIZE - curColNum%TAB_SIZE + 1; }
+[ ]+                   { /* ignore all spaces */  }
+<*>[\t]                { curColNum += TAB_SIZE - curColNum%TAB_SIZE + 1; }
 
  /* -------------------- Comments ----------------------------- */
-{BEG_COMMENT} { BEGIN(COMM); }
-<COMM>{END_COMMENT} { BEGIN(N); }
-<COMM><<EOF>> { ReportError::UntermComment();
+{BEG_COMMENT}          { BEGIN(COMM); }
+<COMM>{END_COMMENT}    { BEGIN(N); }
+<COMM><<EOF>>          { ReportError::UntermComment();
                          return 0; }
-<COMM>. { /* ignore everything else that doesn't match */ }
-{SINGLE_COMMENT} { /* skip to end of line for // comment */ }
+<COMM>.                { /* ignore everything else that doesn't match */ }
+{SINGLE_COMMENT}       { /* skip to end of line for // comment */ }
 
 
  /* --------------------- Keywords ------------------------------- */
-"void" { return T_Void; }
-"int" { return T_Int; }
-"double" { return T_Double; }
-"bool" { return T_Bool; }
-"string" { return T_String; }
-"null" { return T_Null; }
-"class" { return T_Class; }
-"extends" { return T_Extends; }
-"this" { return T_This; }
-"interface" { return T_Interface; }
-"implements" { return T_Implements; }
-"while" { return T_While; }
-"for" { return T_For; }
-"if" { return T_If; }
-"else" { return T_Else; }
-"return" { return T_Return; }
-"break" { return T_Break; }
-"New" { return T_New; }
-"NewArray" { return T_NewArray; }
-"Print" { return T_Print; }
-"ReadInteger" { return T_ReadInteger; }
-"ReadLine" { return T_ReadLine; }
-"switch" { return T_Switch; }
-"case" { return T_Case; }
-"default" { return T_Default; }
-
+"void"              { return T_Void;        }
+"int"               { return T_Int;         }
+"double"            { return T_Double;      }
+"bool"              { return T_Bool;        }
+"string"            { return T_String;      }
+"null"              { return T_Null;        }
+"class"             { return T_Class;       }
+"extends"           { return T_Extends;     }
+"this"              { return T_This;        }
+"interface"         { return T_Interface;   }
+"implements"        { return T_Implements;  }
+"while"             { return T_While;       }
+"for"               { return T_For;         }
+"if"                { return T_If;          }
+"else"              { return T_Else;        }
+"return"            { return T_Return;      }
+"break"             { return T_Break;       }
+"New"               { return T_New;         }
+"NewArray"          { return T_NewArray;    }
+"Print"             { return T_Print;       }
+"ReadInteger"       { return T_ReadInteger; }
+"ReadLine"          { return T_ReadLine;    }
+"switch"	    { return T_Switch;      }
+"case"	            { return T_Case;	    }
+"default"	    { return T_Default;	    }
 
 
  /* -------------------- Operators ----------------------------- */
-"<=" { return T_LessEqual; }
-">=" { return T_GreaterEqual;}
-"==" { return T_Equal; }
-"!=" { return T_NotEqual; }
-"&&" { return T_And; }
-"||" { return T_Or; }
-{OPERATOR} { return yytext[0]; }
+"<="                { return T_LessEqual;   }
+">="                { return T_GreaterEqual;}
+"=="                { return T_Equal;       }
+"!="                { return T_NotEqual;    }
+"&&"                { return T_And;         }
+"||"                { return T_Or;          }
+{OPERATOR}          { return yytext[0];     }
     
-"[]" { return T_Dims; }
+"[]"                { return T_Dims;        }
 
  /* -------------------- Constants ------------------------------ */
-"true"|"false" { yylval.boolConstant = (yytext[0] == 't');
+"true"|"false"      { yylval.boolConstant = (yytext[0] == 't');
                          return T_BoolConstant; }
-{INTEGER} { yylval.integerConstant = strtol(yytext, NULL, 10);
+{INTEGER}           { yylval.integerConstant = strtol(yytext, NULL, 10);
                          return T_IntConstant; }
-{HEX_INTEGER} { yylval.integerConstant = strtol(yytext, NULL, 16);
+{HEX_INTEGER}       { yylval.integerConstant = strtol(yytext, NULL, 16);
                          return T_IntConstant; }
-{DOUBLE} { yylval.doubleConstant = atof(yytext);
+{DOUBLE}            { yylval.doubleConstant = atof(yytext);
                          return T_DoubleConstant; }
-{STRING} { yylval.stringConstant = strdup(yytext);
+{STRING}            { yylval.stringConstant = strdup(yytext); 
                          return T_StringConstant; }
-{BEG_STRING} { ReportError::UntermString(&yylloc, yytext); }
+{BEG_STRING}        { ReportError::UntermString(&yylloc, yytext); }
 
 
  /* -------------------- Identifiers --------------------------- */
-{IDENTIFIER} { if (strlen(yytext) > MaxIdentLen)
+{IDENTIFIER}        { if (strlen(yytext) > MaxIdentLen)
                          ReportError::LongIdentifier(&yylloc, yytext);
                        strncpy(yylval.identifier, yytext, MaxIdentLen);
                        yylval.identifier[MaxIdentLen] = '\0';
@@ -142,14 +141,14 @@ SINGLE_COMMENT ("//"[^\n]*)
 
 
  /* -------------------- Default rule (error) -------------------- */
-. { ReportError::UnrecogChar(&yylloc, yytext[0]); }
+.                   { ReportError::UnrecogChar(&yylloc, yytext[0]); }
 
 %%
 
 
 /* Function: InitScanner
  * ---------------------
- * This function will be called before any calls to yylex(). It is designed
+ * This function will be called before any calls to yylex().  It is designed
  * to give you an opportunity to do anything that must be done to initialize
  * the scanner (set global variables, configure starting state, etc.). One
  * thing it already does for you is assign the value of the global variable
@@ -188,11 +187,13 @@ static void DoBeforeEachAction()
 /* Function: GetLineNumbered()
  * ---------------------------
  * Returns string with contents of line numbered n or NULL if the
- * contents of that line are not available. Our scanner copies
+ * contents of that line are not available.  Our scanner copies
  * each line scanned and appends each to a list so we can later
  * retrieve them to report the context for errors.
  */
 const char *GetLineNumbered(int num) {
    if (num <= 0 || num > savedLines.NumElements()) return NULL;
-   return savedLines.Nth(num-1);
+   return savedLines.Nth(num-1); 
 }
+
+
