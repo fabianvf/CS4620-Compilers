@@ -113,9 +113,10 @@ void yyerror(const char *msg); // standard error-handling routine
 //Precedence Rules
 %nonassoc LTELSE
 %nonassoc T_Else
-%nonassoc '='
-%left '<' '>' T_LessEqual T_GreaterEqual T_Equal T_NotEqual
+%left '='
 %left T_Or T_And
+%left T_Equal T_NotEqual
+%left '<' '>' T_LessEqual T_GreaterEqual
 %left '+' '-'
 %left '/' '*' '%'
 %left '!'
@@ -275,8 +276,8 @@ Expr : LValue '=' Expr { $$ = new AssignExpr($1, new Operator(@2, "="), $3);}
 	| Expr T_LessEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, "<="), $3);}
 	| Expr '>' Expr {$$ = new RelationalExpr($1, new Operator(@2, ">"), $3);}
 	| Expr T_GreaterEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, ">="), $3);}
-	| Expr T_Equal Expr {$$ = new RelationalExpr($1, new Operator(@2, "="), $3);}
-	| Expr T_NotEqual Expr {$$ = new RelationalExpr($1, new Operator(@2, "!="), $3);}
+	| Expr T_Equal Expr {$$ = new EqualityExpr($1, new Operator(@2, "=="), $3);}
+	| Expr T_NotEqual Expr {$$ = new EqualityExpr($1, new Operator(@2, "!="), $3);}
 	| Expr T_And Expr {$$ = new LogicalExpr($1, new Operator(@2, "&&"), $3);}
 	| Expr T_Or Expr {$$ = new LogicalExpr($1, new Operator(@2, "||"), $3);}
 	| '!' Expr {$$ = new LogicalExpr(new Operator(@2, "!"), $2);}
