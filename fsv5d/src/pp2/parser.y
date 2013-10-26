@@ -113,7 +113,8 @@ void yyerror(const char *msg); // standard error-handling routine
 //Precedence Rules
 %nonassoc LTELSE
 %nonassoc T_Else
-%left '<' '>' T_LessEqual T_GreaterEqual T_Equal T_NotEqual '='
+%nonassoc '='
+%left '<' '>' T_LessEqual T_GreaterEqual T_Equal T_NotEqual
 %left T_Or T_And
 %left '+' '-'
 %left '/' '*' '%'
@@ -214,7 +215,7 @@ VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
 ;
 
 StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; }
-	  | StmtList Stmt {$$ = $1; $$->Append($2);}
+	  | Stmt StmtList {$$ = $2; $$->InsertAt($1, 0);}
 ;
 Stmt : PeExpr ';'{$$ = $1;}
      |  IfStmt {$$ = $1;}
