@@ -84,29 +84,4 @@ void PrintStmt::PrintChildren(int indentLevel) {
     args->PrintAll(indentLevel+1, "(args) ");
 }
 
-Case::Case(Expr *intConstant, List<Stmt*> *stmts) {
-	Assert(stmts != NULL);
-	(intConst=intConstant)->SetParent(this);
-	(stmtList=stmts)->SetParentAll(this);
-}
-
-void Case::PrintChildren(int indentLevel){
-	if(intConst == NULL){
-		intConst->Print(indentLevel+1);
-		stmtList->PrintAll(indentLevel+1);
-	}	
-}
-
-
-SwitchStmt::SwitchStmt(Expr *test, List<Case*> *cases) {
-	Assert(test != NULL);
-	Assert(cases != NULL);
-	(testCondition=test)->SetParent(this);
-	(casesList=cases)->SetParentAll(this);
-}
-
-void SwitchStmt::PrintChildren(int indentLevel){
-	testCondition->Print(indentLevel+1);
-	casesList->PrintAll(indentLevel+1);
-}
 

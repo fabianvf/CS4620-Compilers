@@ -66,16 +66,11 @@
      T_Print = 284,
      T_ReadInteger = 285,
      T_ReadLine = 286,
-     T_Switch = 287,
-     T_Case = 288,
-     T_Default = 289,
-     T_Identifier = 290,
-     T_StringConstant = 291,
-     T_IntConstant = 292,
-     T_DoubleConstant = 293,
-     T_BoolConstant = 294,
-     LTELSE = 295,
-     UNARY = 296
+     T_Identifier = 287,
+     T_StringConstant = 288,
+     T_IntConstant = 289,
+     T_DoubleConstant = 290,
+     T_BoolConstant = 291
    };
 #endif
 /* Tokens.  */
@@ -108,16 +103,11 @@
 #define T_Print 284
 #define T_ReadInteger 285
 #define T_ReadLine 286
-#define T_Switch 287
-#define T_Case 288
-#define T_Default 289
-#define T_Identifier 290
-#define T_StringConstant 291
-#define T_IntConstant 292
-#define T_DoubleConstant 293
-#define T_BoolConstant 294
-#define LTELSE 295
-#define UNARY 296
+#define T_Identifier 287
+#define T_StringConstant 288
+#define T_IntConstant 289
+#define T_DoubleConstant 290
+#define T_BoolConstant 291
 
 
 
@@ -127,7 +117,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 43 "parser.y"
+#line 41 "parser.y"
 
     int integerConstant;
     bool boolConstant;
@@ -137,23 +127,16 @@ typedef union YYSTYPE
     Decl *decl;
     VarDecl *var;
     FnDecl *fDecl;
-    ClassDecl *cDecl;
-    InterfaceDecl *iDecl;
     Type *type;
     Stmt *stmt;
-    Expr *expr;
-    NamedType *namedtype;
-    List<NamedType*> *ntypeList;
     List<Stmt*> *stmtList;
     List<VarDecl*> *varList;
     List<Decl*> *declList;
-    List<Expr*> *exprList;
-    List<Case*> *cases;
 
 
 
 /* Line 2068 of yacc.c  */
-#line 157 "y.tab.h"
+#line 140 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -1,4 +1,3 @@
-
 /* File: ast_stmt.h
  * ----------------
  * The Stmt class and its subclasses are used to represent
@@ -128,32 +127,5 @@ class PrintStmt : public Stmt
     void PrintChildren(int indentLevel);
 };
 
-class Case : public Stmt {
-	protected:
-		Expr *intConst;
-		List<Stmt*> *stmtList;
-	public:
-		Case(Expr *intConstant, List<Stmt*> *stmts);
-		const char *GetPrintNameForNode() {return "Case";}
-		void PrintChildren(int indentLevel);
-};
-
-class Default : public Case {
-	public:
-		Default(List<Stmt*> *stmts) : Case(NULL, stmts) {}
-		const char *GetPrintNameForNode() {return "Default";}
-};
-
-
-
-class SwitchStmt : public Stmt { 
-	protected: 
-		Expr *testCondition;
-		List<Case*> *casesList;
-	public:
-		SwitchStmt(Expr *test, List<Case*> *cases);
-		const char *GetPrintNameForNode() {return "SwitchStmt"; }
-		void PrintChildren(int indentLevel);
-};
 
 #endif
