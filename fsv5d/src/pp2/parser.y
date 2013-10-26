@@ -151,8 +151,8 @@ Decl      :    VarDecl              { $$=$1; }
 InterfaceDecl: T_Interface T_Identifier '{' ProtoList '}' { $$ = new InterfaceDecl(new Identifier(@2, $2), $4);}
 
 ProtoList: {$$ = new List<Decl*>;}
-	 | Prototype ProtoList {$$=$2;
-				$$->Append($1);}
+	 | ProtoList Prototype {$$=$1;
+				$$->Append($2);}
 
 Prototype : Type T_Identifier '(' Formals ')' ';' {$$ = new FnDecl(new Identifier(@2,$2), $1, $4);}
 	  | T_Void T_Identifier '(' Formals ')' ';' {$$ = new FnDecl(new Identifier(@2,$2), Type::voidType,$4);}
@@ -163,7 +163,7 @@ PeExtend : T_Extends T_Identifier {$$ = new NamedType(new Identifier(@2,$2));}
 	 | {$$ = NULL;}  
 ;
 Fields : {$$ = new List<Decl*>;}
-	| Field Fields { $$ = $2; $$->Append($1);}
+	| Fields Field { $$ = $1; $$->Append($2);}
 ;
 Field : VarDecl {$$ = $1;}
       |  FnDecl {$$ = $1;}
@@ -214,7 +214,7 @@ VarDecls  : VarDecls VarDecl     { ($$=$1)->Append($2); }
 ;
 
 StmtList  : /* empty, add your grammar */  { $$ = new List<Stmt*>; }
-	  | Stmt StmtList {}
+	  | StmtList Stmt {$$ = $1; $$->Append($2);}
 ;
 Stmt : PeExpr ';'{$$ = $1;}
      |  IfStmt {$$ = $1;}
