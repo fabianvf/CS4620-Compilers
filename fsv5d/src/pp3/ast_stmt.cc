@@ -7,10 +7,18 @@
 #include "ast_decl.h"
 #include "ast_expr.h"
 
+Hashtable<Decl*> *SymTable = new Hashtable<Decl*>;
 
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
+}
+
+bool Program::Check() {
+    for(int i=0; i < decls->NumElements(); i++){
+        decls->Nth(i)->Check(Symtable);
+    }
+    return true;
 }
 
 void Program::PrintChildren(int indentLevel) {

@@ -11,6 +11,7 @@
 
 #include "ast.h"
 #include "list.h"
+#include "hashtable.h"
 
 class Type;
 class NamedType;
@@ -24,6 +25,7 @@ class Decl : public Node
   
   public:
     Decl(Identifier *name);
+    bool Check(Hashtable<Decl*> *SymbolTable);
 };
 
 class VarDecl : public Decl 
@@ -35,6 +37,8 @@ class VarDecl : public Decl
     VarDecl(Identifier *name, Type *type);
     const char *GetPrintNameForNode() { return "VarDecl"; }
     void PrintChildren(int indentLevel);
+    bool Check(Hashtable<Decl*> *SymbolTable);
+
 };
 
 class ClassDecl : public Decl 
@@ -49,6 +53,7 @@ class ClassDecl : public Decl
               List<NamedType*> *implements, List<Decl*> *members);
     const char *GetPrintNameForNode() { return "ClassDecl"; }
     void PrintChildren(int indentLevel);
+    bool Check(Hashtable<Decl*> *SymbolTable);
 };
 
 class InterfaceDecl : public Decl 
@@ -60,6 +65,7 @@ class InterfaceDecl : public Decl
     InterfaceDecl(Identifier *name, List<Decl*> *members);
     const char *GetPrintNameForNode() { return "InterfaceDecl"; }
     void PrintChildren(int indentLevel);
+    bool Check(Hashtable<Decl*> *SymbolTable);
 };
 
 class FnDecl : public Decl 
@@ -74,6 +80,7 @@ class FnDecl : public Decl
     void SetFunctionBody(Stmt *b);
     const char *GetPrintNameForNode() { return "FnDecl"; }
     void PrintChildren(int indentLevel);
+    bool Check(Hashtable<Decl*> *SymbolTable);
 };
 
 #endif

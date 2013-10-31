@@ -12,6 +12,7 @@
 
 #include "list.h"
 #include "ast.h"
+#include "hashtable.h"
 
 class Decl;
 class VarDecl;
@@ -25,7 +26,9 @@ class Program : public Node
   public:
      Program(List<Decl*> *declList);
      const char *GetPrintNameForNode() { return "Program"; }
+     bool Check();
      void PrintChildren(int indentLevel);
+     Hashtable<Decl*> SymTable;
 };
 
 class Stmt : public Node

@@ -17,7 +17,11 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     Assert(n != NULL && t != NULL);
     (type=t)->SetParent(this);
 }
-  
+
+bool VarDecl::Check(Hashtable<Decl*> *SymbolTable){
+    return true;
+}
+ 
 void VarDecl::PrintChildren(int indentLevel) { 
    type->Print(indentLevel+1);
    id->Print(indentLevel+1);
@@ -30,6 +34,10 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     if (extends) extends->SetParent(this);
     (implements=imp)->SetParentAll(this);
     (members=m)->SetParentAll(this);
+}
+
+bool ClassDecl::Check(Hashtable<Decl*> *SymbolTable){
+    return true;
 }
 
 void ClassDecl::PrintChildren(int indentLevel) {
@@ -45,6 +53,11 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
+bool InterfaceDecl::Check(Hashtable<Decl*> *SymbolTable){
+    return true;
+}
+
+
 void InterfaceDecl::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
     members->PrintAll(indentLevel+1);
@@ -56,6 +69,11 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     (formals=d)->SetParentAll(this);
     body = NULL;
 }
+
+bool FnDecl::Check(Hashtable<Decl*> *SymbolTable){
+    return true;
+}
+
 
 void FnDecl::SetFunctionBody(Stmt *b) { 
     (body=b)->SetParent(this);
