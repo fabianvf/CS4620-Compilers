@@ -11,12 +11,13 @@
 
 #include "ast.h"
 #include "list.h"
-#include "hashtable.h"
+#include "symboltable.h"
 
 class Type;
 class NamedType;
 class Identifier;
 class Stmt;
+class SymbolTable;
 
 class Decl : public Node 
 {
@@ -25,7 +26,7 @@ class Decl : public Node
   
   public:
     Decl(Identifier *name);
-    bool Check(Hashtable<Decl*> *SymbolTable);
+    bool Check(SymbolTable *SymbolTable);
 };
 
 class VarDecl : public Decl 
@@ -37,7 +38,7 @@ class VarDecl : public Decl
     VarDecl(Identifier *name, Type *type);
     const char *GetPrintNameForNode() { return "VarDecl"; }
     void PrintChildren(int indentLevel);
-    bool Check(Hashtable<Decl*> *SymbolTable);
+    bool Check(SymbolTable *SymbolTable);
 
 };
 
@@ -53,7 +54,7 @@ class ClassDecl : public Decl
               List<NamedType*> *implements, List<Decl*> *members);
     const char *GetPrintNameForNode() { return "ClassDecl"; }
     void PrintChildren(int indentLevel);
-    bool Check(Hashtable<Decl*> *SymbolTable);
+    bool Check(SymbolTable *SymbolTable);
 };
 
 class InterfaceDecl : public Decl 
@@ -65,7 +66,7 @@ class InterfaceDecl : public Decl
     InterfaceDecl(Identifier *name, List<Decl*> *members);
     const char *GetPrintNameForNode() { return "InterfaceDecl"; }
     void PrintChildren(int indentLevel);
-    bool Check(Hashtable<Decl*> *SymbolTable);
+    bool Check(SymbolTable *SymbolTable);
 };
 
 class FnDecl : public Decl 
@@ -80,7 +81,7 @@ class FnDecl : public Decl
     void SetFunctionBody(Stmt *b);
     const char *GetPrintNameForNode() { return "FnDecl"; }
     void PrintChildren(int indentLevel);
-    bool Check(Hashtable<Decl*> *SymbolTable);
+    bool Check(SymbolTable *SymbolTable);
 };
 
 #endif

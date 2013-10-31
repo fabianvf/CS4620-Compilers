@@ -12,23 +12,25 @@
 
 #include "list.h"
 #include "ast.h"
-#include "hashtable.h"
+#include "symboltable.h"
 
 class Decl;
 class VarDecl;
 class Expr;
+//class SymbolTable;
+
   
 class Program : public Node
 {
   protected:
      List<Decl*> *decls;
-     
+     SymbolTable *symTab;
+    
   public:
      Program(List<Decl*> *declList);
      const char *GetPrintNameForNode() { return "Program"; }
      bool Check();
      void PrintChildren(int indentLevel);
-     Hashtable<Decl*> SymTable;
 };
 
 class Stmt : public Node
@@ -155,3 +157,4 @@ class SwitchStmt : public Stmt
 };
 
 #endif
+

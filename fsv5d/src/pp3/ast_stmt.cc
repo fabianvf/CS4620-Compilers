@@ -7,7 +7,8 @@
 #include "ast_decl.h"
 #include "ast_expr.h"
 
-Hashtable<Decl*> *SymTable = new Hashtable<Decl*>;
+
+
 
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
@@ -15,8 +16,9 @@ Program::Program(List<Decl*> *d) {
 }
 
 bool Program::Check() {
+    symTab = new SymbolTable();
     for(int i=0; i < decls->NumElements(); i++){
-        decls->Nth(i)->Check(Symtable);
+        decls->Nth(i)->Check(symTab);
     }
     return true;
 }
@@ -114,5 +116,6 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     expr->Print(indentLevel+1);
     cases->PrintAll(indentLevel+1);
 }
+
 
 

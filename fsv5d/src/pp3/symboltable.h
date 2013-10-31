@@ -14,13 +14,13 @@ class Identifier;
 #include <stdlib.h>   // for NULL
 #include "ast_decl.h"
 #include "list.h"
-//#include <map>
+#include <vector>
 
 class SymbolTable
 {
   protected:
-    List<List<Decl*> > context;
-    List<int> ignore;
+    std::vector<std::vector<Decl*> > context;
+    std::vector<int> ignore;
     int cur_scope_level;
     int toParentScope(int scope_level);
   public:

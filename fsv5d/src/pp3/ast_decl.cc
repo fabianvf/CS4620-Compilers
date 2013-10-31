@@ -18,7 +18,7 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     (type=t)->SetParent(this);
 }
 
-bool VarDecl::Check(Hashtable<Decl*> *SymbolTable){
+bool VarDecl::Check(SymbolTable *SymbolTable){
     return true;
 }
  
@@ -36,7 +36,7 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (members=m)->SetParentAll(this);
 }
 
-bool ClassDecl::Check(Hashtable<Decl*> *SymbolTable){
+bool ClassDecl::Check(SymbolTable *SymbolTable){
     return true;
 }
 
@@ -53,7 +53,7 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-bool InterfaceDecl::Check(Hashtable<Decl*> *SymbolTable){
+bool InterfaceDecl::Check(SymbolTable *SymbolTable){
     return true;
 }
 
@@ -70,7 +70,7 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     body = NULL;
 }
 
-bool FnDecl::Check(Hashtable<Decl*> *SymbolTable){
+bool FnDecl::Check(SymbolTable *SymbolTable){
     return true;
 }
 
