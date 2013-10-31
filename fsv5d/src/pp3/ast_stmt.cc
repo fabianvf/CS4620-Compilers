@@ -16,7 +16,7 @@ Program::Program(List<Decl*> *d) {
 }
 
 bool Program::Check() {
-    symTab = new SymbolTable();
+    Program::symTab = new SymbolTable();
     for(int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check(symTab);
     }

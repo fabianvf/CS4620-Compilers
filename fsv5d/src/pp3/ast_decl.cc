@@ -11,6 +11,9 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
 }
+bool Decl::Check(SymbolTable *SymbolTable){
+    return true;
+}
 
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
