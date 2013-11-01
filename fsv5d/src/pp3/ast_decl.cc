@@ -188,7 +188,23 @@ bool FnDecl::Check(SymbolTable *SymTab){
 
 
 bool FnDecl::Check2(SymbolTable *SymTab){
-    return true;
+    bool success = true;
+    if (!(returnType->Check2(SymTab))){
+        ReportError::IdentifierNotDeclared(returnType->GetId(), LookingForType);
+        success = false;
+    }
+    for(int i = 0; i < formals->NumElements(); i++){
+        if(formals->Nth(i)->Check2(SymTab)){
+            success = false;
+        }
+        printf("I am inside the for loop\n");
+    }
+    printf("I have exited the for loop\n");
+    //TODO: Implement Check2 in Stmt
+    /*if(!body->Check2()){
+        return false;
+    }*/
+    return success;
 }
 
 
