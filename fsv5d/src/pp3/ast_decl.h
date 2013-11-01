@@ -5,7 +5,7 @@
  * specialized for declarations of variables, functions, classes,
  * and interfaces.
  */
-
+ 
 #ifndef _H_ast_decl
 #define _H_ast_decl
 

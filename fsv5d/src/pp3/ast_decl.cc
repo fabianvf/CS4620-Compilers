@@ -6,7 +6,7 @@
 #include "ast_type.h"
 #include "ast_stmt.h"
 #include "errors.h"        
-         
+          
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
