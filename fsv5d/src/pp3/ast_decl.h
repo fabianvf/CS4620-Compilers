@@ -21,6 +21,7 @@ class SymbolTable;
 
 class Decl : public Node 
 {
+  friend class SymbolTable;
   protected:
     Identifier *id;
   

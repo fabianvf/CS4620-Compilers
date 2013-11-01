@@ -8,19 +8,23 @@
 #ifndef SYMBOLTABLE_H_
 #define SYMBOLTABLE_H_
 
-class Decl;
+
 class Identifier;
+class Decl;
 
 #include <stdlib.h>   // for NULL
 #include "ast_decl.h"
+#include "ast.h"
 #include "list.h"
 #include <vector>
+#include <map>
+#include <set>
 
 class SymbolTable
 {
   protected:
-    std::vector<std::vector<Decl*> > context;
-    std::vector<int> ignore;
+    std::vector<std::map<Identifier*, Decl*> > context;
+    std::set<int> ignore;
     int cur_scope_level;
     int toParentScope(int scope_level);
   public:
