@@ -41,7 +41,7 @@ NamedType::NamedType(Identifier *i) : Type(*i->GetLocation()) {
 void NamedType::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
 }
-bool NamedType::Check(SymbolTable* SymTab){
+bool NamedType::Check2(SymbolTable* SymTab){
 //    return true;
     return SymTab->lookup(id->GetName());
 }

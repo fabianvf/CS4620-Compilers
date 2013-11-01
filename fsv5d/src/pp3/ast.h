@@ -26,7 +26,7 @@
 
 #include <stdlib.h>   // for NULL
 #include "location.h"
-
+#include <iostream>
 class Node 
 {
   protected:
@@ -58,6 +58,9 @@ class Identifier : public Node
     
   public:
     Identifier(yyltype loc, const char *name);
+    friend std::ostream& operator<<(std::ostream& o, Identifier *id){
+        return o << id->name;
+    }
     const char *GetPrintNameForNode()   { return "Identifier"; }
     void PrintChildren(int indentLevel);
     char* GetName();

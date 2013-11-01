@@ -42,7 +42,7 @@ bool VarDecl::Check(SymbolTable *SymTab){
 }
 
 bool VarDecl::Check2(SymbolTable *SymTab){
-    if(!(type->Check(SymTab))){
+    if(!(type->Check2(SymTab))){
         ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
         return false;
     }
@@ -83,7 +83,29 @@ bool ClassDecl::Check(SymbolTable *SymTab){
 }
 
 bool ClassDecl::Check2(SymbolTable *SymTab){
-    return true;
+    //TODO: Something regarding inheritance and interfaces goes here
+    bool success = true;
+    if(extends != NULL && !(extends->Check2(SymTab))){
+        ReportError::IdentifierNotDeclared(extends->GetId(), LookingForClass);
+        success = false;
+    }
+    for (int i = 0; i < implements->NumElements(); i++){
+        if(!(implements->Nth(i)->Check2(SymTab))){
+            ReportError::IdentifierNotDeclared(implements->Nth(i)->GetId(), LookingForInterface);
+            success = false;
+        }
+    }
+    SymTab->enter_scope();
+    for(int i = 0; i < members->NumElements(); i++){
+        if(success){
+            success =  members->Nth(i)->Check2(SymTab);
+        }
+        else{
+            members->Nth(i)->Check2(SymTab);
+        }
+    }
+    SymTab->exit_scope();
+    return success;
 }
 
 

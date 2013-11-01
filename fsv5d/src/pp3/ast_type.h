@@ -27,8 +27,13 @@ class Type : public Node
     
     const char *GetPrintNameForNode() { return "Type"; }
     void PrintChildren(int indentLevel);
+    friend std::ostream& operator<<(std::ostream& o, Type *t){
+        t->PrintId(o);
+        return o;
+    }
+    virtual void PrintId(std::ostream& o){o << typeName;}
 
-    virtual bool Check(SymbolTable *SymTab) { return true;}
+    virtual bool Check2(SymbolTable *SymTab) { return true;}
     virtual Identifier *GetId(){return NULL;}
 };
 
@@ -40,9 +45,10 @@ class NamedType : public Type
   public:
     NamedType(Identifier *i);
     Identifier* GetId();
-    bool Check(SymbolTable* SymTab);
+    bool Check2(SymbolTable* SymTab);
     const char *GetPrintNameForNode() { return "NamedType"; }
     void PrintChildren(int indentLevel);
+    void PrintId(std::ostream& o){o  << id->GetName();}
 };
 
 class ArrayType : public Type 
