@@ -40,7 +40,12 @@ bool VarDecl::Check(SymbolTable *SymTab){
     }
     return SymTab->add(this);
 }
- 
+
+bool VarDecl::Check2(SymbolTable *SymTab){
+    return true;
+}
+
+
 void VarDecl::PrintChildren(int indentLevel) { 
    type->Print(indentLevel+1);
    id->Print(indentLevel+1);
@@ -73,6 +78,11 @@ bool ClassDecl::Check(SymbolTable *SymTab){
     return true;
 }
 
+bool ClassDecl::Check2(SymbolTable *SymTab){
+    return true;
+}
+
+
 void ClassDecl::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
     if (extends) extends->Print(indentLevel+1, "(extends) ");
@@ -103,6 +113,11 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
     }
     return true;
 }
+
+bool InterfaceDecl::Check2(SymbolTable *SymTab){
+    return true;
+}
+
 
 
 
@@ -143,6 +158,11 @@ bool FnDecl::Check(SymbolTable *SymTab){
         SymTab->exit_scope();
     }
     return success;
+}
+
+
+bool FnDecl::Check2(SymbolTable *SymTab){
+    return true;
 }
 
 

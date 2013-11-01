@@ -31,6 +31,7 @@ class Decl : public Node
     friend std::ostream& operator<< (std::ostream& o, Decl *decl){return o << decl->id->GetName();}
     char *GetName();
     virtual bool Check(SymbolTable *SymbolTable){return true;}
+    virtual bool Check2(SymbolTable *SymbolTable){return true;}
 };
 
 class VarDecl : public Decl 
@@ -43,6 +44,8 @@ class VarDecl : public Decl
     const char *GetPrintNameForNode() { return "VarDecl"; }
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
+    bool Check2(SymbolTable *SymbolTable);
+
 
 };
 
@@ -59,6 +62,9 @@ class ClassDecl : public Decl
     const char *GetPrintNameForNode() { return "ClassDecl"; }
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
+    bool Check2(SymbolTable *SymbolTable);
+
+
 };
 
 class InterfaceDecl : public Decl 
@@ -71,6 +77,9 @@ class InterfaceDecl : public Decl
     const char *GetPrintNameForNode() { return "InterfaceDecl"; }
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
+    bool Check2(SymbolTable *SymbolTable);
+
+
 };
 
 class FnDecl : public Decl 
@@ -86,6 +95,9 @@ class FnDecl : public Decl
     const char *GetPrintNameForNode() { return "FnDecl"; }
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
+    bool Check2(SymbolTable *SymbolTable);
+
+
 };
 
 #endif

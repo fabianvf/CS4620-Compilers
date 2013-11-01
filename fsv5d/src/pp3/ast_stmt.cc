@@ -22,6 +22,15 @@ bool Program::Check() {
     for(int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check(symTab);
    }
+
+   // Second Pass; Need to traverse through AST, and
+   // FOR PP3: check if Identifer is used but not declared
+   //          check if class overrides an inherited method
+   //           (So I need to unify class scopes and the scopes they inherit)             
+    symTab->setForPass2();
+    for (int i=0; i < decls->NumElements(); i++){
+        decls->Nth(i)->Check2(symTab);
+    }
     return true;
 }
 
