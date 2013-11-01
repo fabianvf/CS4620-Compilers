@@ -60,9 +60,17 @@ bool ClassDecl::Check(SymbolTable *SymTab){
         ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
         return false;
     }
-    return SymTab->add(this);
+    if(!SymTab->add(this)){
+        return false;
+    }
+    else{
+        SymTab->enter_scope();
+        for(int i = 0; i < members->NumElements(); i++){
+            members->Nth(i)->Check(SymTab);
+        }
+    }
+    return true;
 }
-
 
 void ClassDecl::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
@@ -78,13 +86,22 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
 }
 
 bool InterfaceDecl::Check(SymbolTable *SymTab){
-     if (SymTab->local_lookup(GetName()) != NULL){
+    if (SymTab->local_lookup(GetName()) != NULL){
         ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
         return false;
     }
-    return SymTab->add(this);
- 
+    if(!SymTab->add(this)){
+        return false;
+    }
+    else{
+        SymTab->enter_scope();
+        for(int i = 0; i < members->NumElements(); i++){
+            members->Nth(i)->Check(SymTab);
+        }
+    }
+    return true;
 }
+
 
 
 void InterfaceDecl::PrintChildren(int indentLevel) {
@@ -100,13 +117,31 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
 }
 
 bool FnDecl::Check(SymbolTable *SymTab){
+    bool success = true;
     if (SymTab->local_lookup(GetName()) != NULL){
         ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
-        return false;
+        success = false;
     }
-    return SymTab->add(this);
-
+    if(!SymTab->add(this)){
+        success = false;
+    }
+    else{
+        SymTab->enter_scope();
+        for(int i = 0; i < formals->NumElements(); i++){
+            if (success == true){
+                success =formals->Nth(i)->Check(SymTab);
+            }
+            else{
+                formals->Nth(i)->Check(SymTab);
+            }
+        }
+        if ((body != NULL) && (!body->Check(SymTab))){
+           return false;    
+        }
+    }
+    return success;
 }
+
 
 void FnDecl::SetFunctionBody(Stmt *b) { 
     (body=b)->SetParent(this);
