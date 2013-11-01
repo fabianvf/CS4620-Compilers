@@ -68,6 +68,7 @@ bool ClassDecl::Check(SymbolTable *SymTab){
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }
+        SymTab->exit_scope();
     }
     return true;
 }
@@ -98,6 +99,7 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }
+        SymTab->exit_scope();
     }
     return true;
 }
@@ -138,6 +140,7 @@ bool FnDecl::Check(SymbolTable *SymTab){
         if ((body != NULL) && (!body->Check(SymTab))){
            return false;    
         }
+        SymTab->exit_scope();
     }
     return success;
 }

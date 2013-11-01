@@ -30,12 +30,13 @@ class SymbolTable
     int toParentScope(int scope_level);
   public:
     SymbolTable();
+    void add_scope();
     void enter_scope();
     void exit_scope();
     Decl* lookup(char* x);
     Decl* local_lookup(char* x);
     bool add(Decl* x);
-
+    void setForPass2();
 };
    
 #endif

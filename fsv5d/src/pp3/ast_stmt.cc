@@ -21,7 +21,6 @@ bool Program::Check() {
     // Errors Caught: redeclaration of a variable within the same scope
     for(int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check(symTab);
-//        std:: cout << decls->Nth(i)<< std::endl;
    }
     return true;
 }
@@ -39,6 +38,7 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
 
 bool StmtBlock::Check(SymbolTable *SymTab){
     bool success = true;
+    SymTab->enter_scope();
     for(int i = 0; i < decls->NumElements(); i++){
         if (success){
             success = decls->Nth(i)->Check(SymTab);        
@@ -56,6 +56,7 @@ bool StmtBlock::Check(SymbolTable *SymTab){
             stmts->Nth(i)->Check(SymTab);
         }
     }
+    SymTab->exit_scope();
     return success;
 }
 void StmtBlock::PrintChildren(int indentLevel) {
@@ -76,7 +77,7 @@ ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
 }
 
 bool ForStmt::Check(SymbolTable* SymTab){
-    return true;
+    return body->Check(SymTab);
 }
 
 void ForStmt::PrintChildren(int indentLevel) {
@@ -92,7 +93,7 @@ void WhileStmt::PrintChildren(int indentLevel) {
 }
 
 bool WhileStmt::Check(SymbolTable* SymTab){
-    return true;
+    return body->Check(SymTab);
 }
 
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
@@ -108,7 +109,12 @@ void IfStmt::PrintChildren(int indentLevel) {
 }
 
 bool IfStmt::Check(SymbolTable* SymTab){
-    return true;
+    bool success = true;
+    success = body->Check(SymTab);
+    if(elseBody && !elseBody->Check(SymTab)){
+        return false;
+    }
+    return success;
 }
 
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
@@ -121,6 +127,7 @@ void ReturnStmt::PrintChildren(int indentLevel) {
 }
   
 bool ReturnStmt::Check(SymbolTable* SymTab){
+    //TODO
     return true;
 }
 
@@ -135,6 +142,7 @@ void PrintStmt::PrintChildren(int indentLevel) {
 }
 
 bool PrintStmt::Check(SymbolTable* SymTab){
+    //TODO
     return true;
 }
 
@@ -166,6 +174,7 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 bool SwitchStmt::Check(SymbolTable* SymTab){
+    //TODO
     return true;
 }
 

@@ -37,12 +37,16 @@ int SymbolTable::toParentScope(int scope_level){
 }
 
 // This simply adds a new empty map onto the list of scopes, and updates the scope index
-void SymbolTable::enter_scope(){
+void SymbolTable::add_scope(){
     std::map<std::string, Decl*> new_scope;
     context.push_back(new_scope);
     cur_scope_level = (context.size() - 1);
 }
 
+void SymbolTable::enter_scope(){
+    cur_scope_level++;
+
+}
 // This adds the current scope to the ignore list/set, and sets the current scope index 
 // to the parent scope
 void SymbolTable::exit_scope(){
@@ -89,7 +93,10 @@ bool SymbolTable::add(Decl* x){
     }
     return (context[cur_scope_level].insert(std::make_pair(name, x)).second);    
 }
-
-
  
-
+// Sets the SymbolTable up for the second pass, by opening all scopes back up and going to
+// the highest parent scope
+void SymbolTable::setForPass2(){
+    cur_scope_level = 0;
+    ignore.clear();
+}
