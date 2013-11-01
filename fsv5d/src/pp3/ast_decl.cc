@@ -5,15 +5,27 @@
 #include "ast_decl.h"
 #include "ast_type.h"
 #include "ast_stmt.h"
-        
+#include "errors.h"        
          
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
 }
-bool Decl::Check(SymbolTable *SymbolTable){
-    return true;
+
+char* Decl::GetName(){
+    return id->GetName();
 }
+/*
+bool Decl::Check(SymbolTable *SymTab){
+    if (SymTab->add(this)){
+       return true;
+    }
+    else{ 
+        ReportError::DeclConflict(this,SymTab->local_lookup(id->GetName()));
+        return false;
+    }
+}
+*/
 
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
@@ -21,8 +33,12 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
     (type=t)->SetParent(this);
 }
 
-bool VarDecl::Check(SymbolTable *SymbolTable){
-    return true;
+bool VarDecl::Check(SymbolTable *SymTab){
+    if (SymTab->local_lookup(GetName()) != NULL){
+        ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
+        return false;
+    }
+    return SymTab->add(this);
 }
  
 void VarDecl::PrintChildren(int indentLevel) { 
@@ -39,9 +55,14 @@ ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<D
     (members=m)->SetParentAll(this);
 }
 
-bool ClassDecl::Check(SymbolTable *SymbolTable){
-    return true;
+bool ClassDecl::Check(SymbolTable *SymTab){
+    if (SymTab->local_lookup(GetName()) != NULL){
+        ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
+        return false;
+    }
+    return SymTab->add(this);
 }
+
 
 void ClassDecl::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
@@ -56,8 +77,13 @@ InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     (members=m)->SetParentAll(this);
 }
 
-bool InterfaceDecl::Check(SymbolTable *SymbolTable){
-    return true;
+bool InterfaceDecl::Check(SymbolTable *SymTab){
+     if (SymTab->local_lookup(GetName()) != NULL){
+        ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
+        return false;
+    }
+    return SymTab->add(this);
+ 
 }
 
 
@@ -73,10 +99,14 @@ FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     body = NULL;
 }
 
-bool FnDecl::Check(SymbolTable *SymbolTable){
-    return true;
-}
+bool FnDecl::Check(SymbolTable *SymTab){
+    if (SymTab->local_lookup(GetName()) != NULL){
+        ReportError::DeclConflict(this, SymTab->local_lookup(id->GetName()));
+        return false;
+    }
+    return SymTab->add(this);
 
+}
 
 void FnDecl::SetFunctionBody(Stmt *b) { 
     (body=b)->SetParent(this);

@@ -9,17 +9,20 @@
 
 
 
-
 Program::Program(List<Decl*> *d) {
     Assert(d != NULL);
     (decls=d)->SetParentAll(this);
 }
 
 bool Program::Check() {
-    Program::symTab = new SymbolTable();
+    symTab = new SymbolTable();
+    symTab->enter_scope();
+    // First Pass: All decls add themselves to the symbol table
+    // Errors Caught: redeclaration of a variable within the same scope
     for(int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check(symTab);
-    }
+//        std:: cout << decls->Nth(i)<< std::endl;
+   }
     return true;
 }
 

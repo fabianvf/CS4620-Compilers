@@ -52,6 +52,7 @@ class Node
 
 class Identifier : public Node 
 {
+  
   protected:
     char *name;
     
@@ -59,6 +60,7 @@ class Identifier : public Node
     Identifier(yyltype loc, const char *name);
     const char *GetPrintNameForNode()   { return "Identifier"; }
     void PrintChildren(int indentLevel);
+    char* GetName();
 };
 
 

@@ -19,11 +19,12 @@ class Decl;
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 class SymbolTable
 {
   protected:
-    std::vector<std::map<Identifier*, Decl*> > context;
+    std::vector<std::map<std::string, Decl*> > context;
     std::set<int> ignore;
     int cur_scope_level;
     int toParentScope(int scope_level);
@@ -31,8 +32,8 @@ class SymbolTable
     SymbolTable();
     void enter_scope();
     void exit_scope();
-    Decl* lookup(Identifier* x);
-    Decl* local_lookup(Identifier* x);
+    Decl* lookup(char* x);
+    Decl* local_lookup(char* x);
     bool add(Decl* x);
 
 };

@@ -9,6 +9,7 @@
 #ifndef _H_ast_decl
 #define _H_ast_decl
 
+#include <iostream>
 #include "ast.h"
 #include "list.h"
 #include "symboltable.h"
@@ -27,7 +28,9 @@ class Decl : public Node
   
   public:
     Decl(Identifier *name);
-    bool Check(SymbolTable *SymbolTable);
+    friend std::ostream& operator<< (std::ostream& o, Decl *decl){return o << decl->id->GetName();}
+    char *GetName();
+    virtual bool Check(SymbolTable *SymbolTable){return true;}
 };
 
 class VarDecl : public Decl 

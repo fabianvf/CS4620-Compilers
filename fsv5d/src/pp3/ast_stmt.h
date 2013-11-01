@@ -23,11 +23,11 @@ class Expr;
 class Program : public Node
 {
   protected:
-     List<Decl*> *decls;
-     SymbolTable *symTab;
+     List<Decl*> *decls; 
     
   public:
      Program(List<Decl*> *declList);
+     SymbolTable *symTab;
      const char *GetPrintNameForNode() { return "Program"; }
      bool Check();
      void PrintChildren(int indentLevel);
