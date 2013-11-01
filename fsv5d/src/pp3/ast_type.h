@@ -11,7 +11,7 @@
 
 #include "ast.h"
 #include "list.h"
-
+#include "symboltable.h"
 
 class Type : public Node 
 {
@@ -27,6 +27,9 @@ class Type : public Node
     
     const char *GetPrintNameForNode() { return "Type"; }
     void PrintChildren(int indentLevel);
+
+    virtual bool Check(SymbolTable *SymTab) { return true;}
+    virtual Identifier *GetId(){return NULL;}
 };
 
 class NamedType : public Type 
@@ -36,7 +39,8 @@ class NamedType : public Type
     
   public:
     NamedType(Identifier *i);
-    
+    Identifier* GetId();
+    bool Check(SymbolTable* SymTab);
     const char *GetPrintNameForNode() { return "NamedType"; }
     void PrintChildren(int indentLevel);
 };

@@ -42,6 +42,10 @@ bool VarDecl::Check(SymbolTable *SymTab){
 }
 
 bool VarDecl::Check2(SymbolTable *SymTab){
+    if(!(type->Check(SymTab))){
+        ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
+        return false;
+    }
     return true;
 }
 
@@ -69,7 +73,7 @@ bool ClassDecl::Check(SymbolTable *SymTab){
         return false;
     }
     else{
-        SymTab->enter_scope();
+        SymTab->add_scope();
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }
@@ -105,7 +109,7 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
         return false;
     }
     else{
-        SymTab->enter_scope();
+        SymTab->add_scope();
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }
@@ -143,7 +147,7 @@ bool FnDecl::Check(SymbolTable *SymTab){
         success = false;
     }
     else{
-        SymTab->enter_scope();
+        SymTab->add_scope();
         for(int i = 0; i < formals->NumElements(); i++){
             if (success == true){
                 success =formals->Nth(i)->Check(SymTab);

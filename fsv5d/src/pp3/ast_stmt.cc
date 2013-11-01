@@ -16,7 +16,7 @@ Program::Program(List<Decl*> *d) {
 
 bool Program::Check() {
     symTab = new SymbolTable();
-    symTab->enter_scope();
+    symTab->add_scope();
     // First Pass: All decls add themselves to the symbol table
     // Errors Caught: redeclaration of a variable within the same scope
     for(int i=0; i < decls->NumElements(); i++){
@@ -47,7 +47,7 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
 
 bool StmtBlock::Check(SymbolTable *SymTab){
     bool success = true;
-    SymTab->enter_scope();
+    SymTab->add_scope();
     for(int i = 0; i < decls->NumElements(); i++){
         if (success){
             success = decls->Nth(i)->Check(SymTab);        

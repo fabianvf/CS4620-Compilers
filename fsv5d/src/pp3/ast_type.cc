@@ -41,6 +41,15 @@ NamedType::NamedType(Identifier *i) : Type(*i->GetLocation()) {
 void NamedType::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
 }
+bool NamedType::Check(SymbolTable* SymTab){
+//    return true;
+    return SymTab->lookup(id->GetName());
+}
+
+Identifier* NamedType::GetId(){
+//    return NULL;
+    return id;
+}
 
 ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
     Assert(et != NULL);
@@ -49,5 +58,4 @@ ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
 void ArrayType::PrintChildren(int indentLevel) {
     elemType->Print(indentLevel+1);
 }
-
 
