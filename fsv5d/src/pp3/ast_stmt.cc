@@ -28,9 +28,13 @@ bool Program::Check() {
    //          check if class overrides an inherited method
    //           (So I need to unify class scopes and the scopes they inherit)             
     symTab->setForPass2();
+    symTab->enter_scope();
+//    symTab->print_contents();
+  
     for (int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check2(symTab);
     }
+//    symTab->print_contents();
     return true;
 }
 
@@ -68,6 +72,24 @@ bool StmtBlock::Check(SymbolTable *SymTab){
     SymTab->exit_scope();
     return success;
 }
+
+bool StmtBlock::Check2(SymbolTable *SymTab){
+    bool success = true;
+    SymTab->enter_scope();
+    for(int i = 0; i < decls->NumElements(); i++){
+        if (!decls->Nth(i)->Check2(SymTab)){
+            success = false;
+        }
+    }
+    for (int i=0; i < stmts->NumElements(); i++){
+        if (!stmts->Nth(i)->Check2(SymTab)){
+            success = false;
+        }
+    }
+    SymTab->exit_scope();
+    return success;
+
+}
 void StmtBlock::PrintChildren(int indentLevel) {
     decls->PrintAll(indentLevel+1);
     stmts->PrintAll(indentLevel+1);
@@ -89,6 +111,14 @@ bool ForStmt::Check(SymbolTable* SymTab){
     return body->Check(SymTab);
 }
 
+bool ForStmt::Check2(SymbolTable* SymTab){
+    bool success = true;
+    
+
+    return body->Check2(SymTab);
+}
+
+
 void ForStmt::PrintChildren(int indentLevel) {
     init->Print(indentLevel+1, "(init) ");
     test->Print(indentLevel+1, "(test) ");
@@ -104,6 +134,11 @@ void WhileStmt::PrintChildren(int indentLevel) {
 bool WhileStmt::Check(SymbolTable* SymTab){
     return body->Check(SymTab);
 }
+
+bool WhileStmt::Check2(SymbolTable* SymTab){
+    return body->Check2(SymTab);
+}
+
 
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
     Assert(t != NULL && tb != NULL); // else can be NULL
@@ -126,6 +161,16 @@ bool IfStmt::Check(SymbolTable* SymTab){
     return success;
 }
 
+bool IfStmt::Check2(SymbolTable* SymTab){
+    bool success = true;
+    success = body->Check2(SymTab);
+    if(elseBody && !elseBody->Check2(SymTab)){
+        return false;
+    }
+    return success;
+}
+
+
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
     Assert(e != NULL);
     (expr=e)->SetParent(this);
@@ -136,6 +181,11 @@ void ReturnStmt::PrintChildren(int indentLevel) {
 }
   
 bool ReturnStmt::Check(SymbolTable* SymTab){
+    //TODO
+    return true;
+}
+
+bool ReturnStmt::Check2(SymbolTable* SymTab){
     //TODO
     return true;
 }
@@ -154,6 +204,11 @@ bool PrintStmt::Check(SymbolTable* SymTab){
     //TODO
     return true;
 }
+bool PrintStmt::Check2(SymbolTable* SymTab){
+    //TODO
+    return true;
+}
+
 
 Case::Case(IntConstant *v, List<Stmt*> *s) {
     Assert(s != NULL);
@@ -183,6 +238,12 @@ void SwitchStmt::PrintChildren(int indentLevel) {
 }
 
 bool SwitchStmt::Check(SymbolTable* SymTab){
+    //TODO
+    return true;
+}
+
+
+bool SwitchStmt::Check2(SymbolTable* SymTab){
     //TODO
     return true;
 }

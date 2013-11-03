@@ -43,7 +43,12 @@ void NamedType::PrintChildren(int indentLevel) {
 }
 bool NamedType::Check2(SymbolTable* SymTab){
 //    return true;
-    return SymTab->lookup(id->GetName());
+    //std:cerr << "Made it to NamedType::Check2():\n";
+    if (SymTab->lookup(id->GetName()) == NULL){
+        //std:cerr << "I should go here and return false now";
+        return false; 
+    }
+    return true;
 }
 
 Identifier* NamedType::GetId(){
@@ -54,6 +59,15 @@ Identifier* NamedType::GetId(){
 ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
     Assert(et != NULL);
     (elemType=et)->SetParent(this);
+}
+
+
+Identifier* ArrayType::GetId(){
+    return elemType->GetId();
+}
+bool ArrayType::Check2(SymbolTable *SymTab){
+    if((elemType == Type::intType) || (elemType == Type::doubleType) ||(elemType == Type::boolType) || (elemType == Type::stringType)){return true;}
+    return (SymTab->lookup(elemType->GetId()->GetName()) != NULL);
 }
 void ArrayType::PrintChildren(int indentLevel) {
     elemType->Print(indentLevel+1);

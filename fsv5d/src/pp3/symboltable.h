@@ -28,6 +28,7 @@ class SymbolTable
     std::set<int> ignore;
     int cur_scope_level;
     int toParentScope(int scope_level);
+    int toNextChildScope(int scope_level);
   public:
     SymbolTable();
     void add_scope();
@@ -37,6 +38,8 @@ class SymbolTable
     Decl* local_lookup(char* x);
     bool add(Decl* x);
     void setForPass2();
+    int get_scope_level();
+    void print_contents();
 };
    
 #endif

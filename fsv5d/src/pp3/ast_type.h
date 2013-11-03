@@ -58,9 +58,11 @@ class ArrayType : public Type
 
   public:
     ArrayType(yyltype loc, Type *elemType);
-    
+    Identifier* GetId();    
     const char *GetPrintNameForNode() { return "ArrayType"; }
     void PrintChildren(int indentLevel);
+    void Print(std::ostream& o) { o << elemType << "[]";}
+    bool Check2(SymbolTable* SymTab);
 };
 
  

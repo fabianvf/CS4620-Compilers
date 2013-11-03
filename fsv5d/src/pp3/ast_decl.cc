@@ -15,17 +15,7 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
 char* Decl::GetName(){
     return id->GetName();
 }
-/*
-bool Decl::Check(SymbolTable *SymTab){
-    if (SymTab->add(this)){
-       return true;
-    }
-    else{ 
-        ReportError::DeclConflict(this,SymTab->local_lookup(id->GetName()));
-        return false;
-    }
-}
-*/
+
 
 
 VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
@@ -42,8 +32,11 @@ bool VarDecl::Check(SymbolTable *SymTab){
 }
 
 bool VarDecl::Check2(SymbolTable *SymTab){
+    //std::cerr << "In Variable " << id << ":\n";
     if(!(type->Check2(SymTab))){
+        //std::cerr << id << " did not typecheck\n";
         ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
+        type = Type::errorType;
         return false;
     }
     return true;
@@ -141,6 +134,8 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
 }
 
 bool InterfaceDecl::Check2(SymbolTable *SymTab){
+    SymTab->enter_scope();
+    SymTab->exit_scope();
     return true;
 }
 
@@ -168,21 +163,19 @@ bool FnDecl::Check(SymbolTable *SymTab){
     if(!SymTab->add(this)){
         success = false;
     }
-    else{
-        SymTab->add_scope();
-        for(int i = 0; i < formals->NumElements(); i++){
-            if (success == true){
-                success =formals->Nth(i)->Check(SymTab);
-            }
-            else{
-                formals->Nth(i)->Check(SymTab);
-            }
+    SymTab->add_scope();   
+    for(int i = 0; i < formals->NumElements(); i++){
+        if (success == true){
+            success =formals->Nth(i)->Check(SymTab);
         }
-        if ((body != NULL) && (!body->Check(SymTab))){
-           return false;    
+        else{
+            formals->Nth(i)->Check(SymTab);
         }
-        SymTab->exit_scope();
     }
+    if((body !=NULL) && (!(body->Check(SymTab)))){ 
+           success = false;    
+    }
+    SymTab->exit_scope();
     return success;
 }
 
@@ -193,17 +186,20 @@ bool FnDecl::Check2(SymbolTable *SymTab){
         ReportError::IdentifierNotDeclared(returnType->GetId(), LookingForType);
         success = false;
     }
+    SymTab->enter_scope();
+    //std::cout << "In Function " << GetName() << " Formals: ";
     for(int i = 0; i < formals->NumElements(); i++){
-        if(formals->Nth(i)->Check2(SymTab)){
+        //std::cout << "\n\t" << SymTab->get_scope_level() << std::endl;
+        if(!(formals->Nth(i)->Check2(SymTab))){
             success = false;
         }
-        printf("I am inside the for loop\n");
+        //std::cout << "\n\t" << SymTab->get_scope_level() << std::endl;
+
     }
-    printf("I have exited the for loop\n");
-    //TODO: Implement Check2 in Stmt
-    /*if(!body->Check2()){
-        return false;
-    }*/
+    if((body != NULL)&&(!(body->Check2(SymTab)))){
+        success = false;
+    }
+    SymTab->exit_scope();
     return success;
 }
 
