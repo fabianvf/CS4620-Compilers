@@ -66,7 +66,11 @@ bool ClassDecl::Check(SymbolTable *SymTab){
         return false;
     }
     else{
+        if (extends != NULL || implements->NumElements() > 0){
+            inherits = true;
+        }
         SymTab->add_scope();
+        scopeIndex = SymTab->get_scope_level();
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }
@@ -77,17 +81,27 @@ bool ClassDecl::Check(SymbolTable *SymTab){
 
 bool ClassDecl::Check2(SymbolTable *SymTab){
     //TODO: Something regarding inheritance and interfaces goes here
+    List<int> *add_scopes = new List<int>();
     bool success = true;
-    if(extends != NULL && !(extends->Check2(SymTab))){
-        ReportError::IdentifierNotDeclared(extends->GetId(), LookingForClass);
-        success = false;
+    if(extends != NULL ){
+        if( !(extends->Check2(SymTab))){
+           ReportError::IdentifierNotDeclared(extends->GetId(), LookingForClass);
+            success = false;
+        }
+        else{
+            add_scopes->Append(SymTab->lookup(extends->GetId()->GetName())->scopeIndex);
+        }
     }
     for (int i = 0; i < implements->NumElements(); i++){
         if(!(implements->Nth(i)->Check2(SymTab))){
             ReportError::IdentifierNotDeclared(implements->Nth(i)->GetId(), LookingForInterface);
             success = false;
         }
+        else{
+            add_scopes->Append(SymTab->lookup(implements->Nth(i)->GetId()->GetName())->scopeIndex);
+        }
     }
+    
     SymTab->enter_scope();
     for(int i = 0; i < members->NumElements(); i++){
         if(success){
@@ -125,6 +139,7 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
     }
     else{
         SymTab->add_scope();
+        scopeIndex = SymTab->get_scope_level();
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);
         }

@@ -29,8 +29,7 @@ bool Program::Check() {
    //           (So I need to unify class scopes and the scopes they inherit)             
     symTab->setForPass2();
     symTab->enter_scope();
-//    symTab->print_contents();
-  
+//    symTab->print_contents();  
     for (int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check2(symTab);
     }

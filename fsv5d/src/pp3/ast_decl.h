@@ -32,6 +32,7 @@ class Decl : public Node
     char *GetName();
     virtual bool Check(SymbolTable *SymbolTable){return true;}
     virtual bool Check2(SymbolTable *SymbolTable){return true;}
+    int scopeIndex;
 };
 
 class VarDecl : public Decl 
@@ -63,6 +64,8 @@ class ClassDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
+    int scopeIndex;
+    bool inherits;
 
 
 };
@@ -78,6 +81,7 @@ class InterfaceDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
+    int scopeIndex;
 
 
 };
