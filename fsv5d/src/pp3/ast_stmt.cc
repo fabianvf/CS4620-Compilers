@@ -34,6 +34,7 @@ bool Program::Check() {
     for (int i=0; i < decls->NumElements(); i++){
         decls->Nth(i)->Check2(symTab);
     }
+
 //    symTab->print_contents();
     return true;
 }

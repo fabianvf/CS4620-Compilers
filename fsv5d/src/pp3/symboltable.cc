@@ -67,15 +67,17 @@ void SymbolTable::exit_scope(){
 // Returns the declaration an identifier belongs to if it is found. Will search all open
 // scopes. Returns NULL if the id is not found.
 Decl* SymbolTable::lookup(char* x){ 
+//    std::cerr << "in SymbolTable.lookup(char* x), looking for: " << x << std::endl;
     int tmp = cur_scope_level;
     Decl* res = NULL;
     for (int j = 0; j < context.size() - ignore.size(); j++){
+//        std::cerr << "\t at scope index: " << cur_scope_level << std::endl;
         res = local_lookup(x);
         if (res != NULL){
             cur_scope_level = tmp;
             return res;
         }
-        cur_scope_level = toParentScope(cur_scope_level);
+        cur_scope_level = toParentScope(cur_scope_level-1);
    }
     cur_scope_level = tmp;
     return NULL;
@@ -124,7 +126,7 @@ void SymbolTable::print_contents()
         std::cout << "Bindings at level " << i <<  ":" << std::endl;
         std::map<std::string, Decl*> & cur = *it;
         for(std::map<std::string, Decl*>::iterator it2 = cur.begin(); it2 != cur.end(); it2++) {
-            std::cout << "\t" << it2->first << "   -> " << it2->second << std::endl;
+            std::cout << "\t" << it2->first << "   -> " << it2->second->GetPrintNameForNode() << std::endl;
         }
 
     }
