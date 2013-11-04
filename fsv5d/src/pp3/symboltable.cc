@@ -139,6 +139,10 @@ bool SymbolTable::unify(int scope, int inheritedScope){
                     }
                 }
             }
+            else{
+                ReportError::DeclConflict(context[scope][it->first], it->second);
+                success = false;
+            }
         }
    }
    return success;   
