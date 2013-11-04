@@ -16,6 +16,7 @@ class Decl;
 #include "ast_decl.h"
 #include "ast.h"
 #include "list.h"
+#include "errors.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -36,6 +37,7 @@ class SymbolTable
     void exit_scope();
     Decl* lookup(char* x);
     Decl* local_lookup(char* x);
+    bool unify(int scope, int inheritedScope);
     bool add(Decl* x);
     void setForPass2();
     int get_scope_level();

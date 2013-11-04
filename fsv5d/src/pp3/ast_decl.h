@@ -32,7 +32,8 @@ class Decl : public Node
     char *GetName();
     virtual bool Check(SymbolTable *SymbolTable){return true;}
     virtual bool Check2(SymbolTable *SymbolTable){return true;}
-    int scopeIndex;
+    static const int kind= 0;
+    virtual int getScopeIndex(){return 0;}
 };
 
 class VarDecl : public Decl 
@@ -46,6 +47,9 @@ class VarDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
+    static const int kind= 1;
+    int getScopeIndex(){return 0;}
+    Type *GetType(){return type;}
 
 
 };
@@ -56,6 +60,7 @@ class ClassDecl : public Decl
     List<Decl*> *members;
     NamedType *extends;
     List<NamedType*> *implements;
+    int scopeIndex;
 
   public:
     ClassDecl(Identifier *name, NamedType *extends, 
@@ -64,8 +69,9 @@ class ClassDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
-    int scopeIndex;
+    int getScopeIndex(){return scopeIndex;}
     bool inherits;
+    static const int kind= 2;
 
 
 };
@@ -74,6 +80,7 @@ class InterfaceDecl : public Decl
 {
   protected:
     List<Decl*> *members;
+    int scopeIndex;
     
   public:
     InterfaceDecl(Identifier *name, List<Decl*> *members);
@@ -81,9 +88,8 @@ class InterfaceDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
-    int scopeIndex;
-
-
+    int getScopeIndex(){return scopeIndex;}
+    static const int kind= 3;
 };
 
 class FnDecl : public Decl 
@@ -100,7 +106,10 @@ class FnDecl : public Decl
     void PrintChildren(int indentLevel);
     bool Check(SymbolTable *SymbolTable);
     bool Check2(SymbolTable *SymbolTable);
-
+    static const int kind= 4;
+    int getScopeIndex(){return 0;}
+    Type *GetType(){return returnType;}
+    List<VarDecl*> *GetFormals() {return formals;}
 
 };
 

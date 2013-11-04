@@ -32,7 +32,7 @@ class Type : public Node
         return o;
     }
     virtual void PrintId(std::ostream& o){o << typeName;}
-
+    virtual char *GetName(){return typeName;}
     virtual bool Check2(SymbolTable *SymTab) { return true;}
     virtual Identifier *GetId(){return NULL;}
 };
@@ -48,6 +48,7 @@ class NamedType : public Type
     bool Check2(SymbolTable* SymTab);
     const char *GetPrintNameForNode() { return "NamedType"; }
     void PrintChildren(int indentLevel);
+    char *GetName(){return id->GetName();}
     void PrintId(std::ostream& o){o  << id->GetName();}
 };
 
@@ -58,7 +59,8 @@ class ArrayType : public Type
 
   public:
     ArrayType(yyltype loc, Type *elemType);
-    Identifier* GetId();    
+    Identifier* GetId();
+    char* GetName(){return GetId()->GetName();}    
     const char *GetPrintNameForNode() { return "ArrayType"; }
     void PrintChildren(int indentLevel);
     void Print(std::ostream& o) { o << elemType << "[]";}

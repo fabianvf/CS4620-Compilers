@@ -97,6 +97,7 @@ Decl* SymbolTable::local_lookup(char* x){
     return it->second;
 }
 
+
 // Adds an (Char*, Decl*) pair to the map. Returns false if the identifier is already 
 // mapped to a value in the current scope, and true otherwise.
 bool SymbolTable::add(Decl* x){
@@ -106,7 +107,44 @@ bool SymbolTable::add(Decl* x){
     }
     return (context[cur_scope_level].insert(std::make_pair(name, x)).second);    
 }
- 
+
+
+// Adds all members in the scope of the second index to the scope of the first
+// Throws errors for type mismatched functions, otherwise allows the current 
+// declaration precedence over the inherited one.
+bool SymbolTable::unify(int scope, int inheritedScope){
+    //TODO: extends and implements can throw different errors, need to separate them
+//    std::cerr << "Unifying " << scope << " with " << inheritedScope <<std::endl;
+    bool success = true;
+    std::map<std::string, Decl*>::iterator it;
+    for(it = context[inheritedScope].begin(); it != context[inheritedScope].end(); it++){
+        if(!context[scope].insert(std::make_pair(it->first, it->second)).second){ 
+            FnDecl* inherited = dynamic_cast<FnDecl*>(it->second);
+            FnDecl* current = dynamic_cast<FnDecl*>(context[scope][it->first]);
+            if((inherited != NULL) && (current != NULL)){
+                List<VarDecl*> *curFormals = current->GetFormals();
+                List<VarDecl*> *inhFormals = inherited->GetFormals();
+                if(curFormals->NumElements() != inhFormals->NumElements()){
+                    ReportError::OverrideMismatch(current);
+                    success = false;
+                }
+                else{
+                   for(int i = 0; i < curFormals->NumElements(); i++){
+                        Type *curType = curFormals->Nth(i)->GetType();
+                        Type *inhType = inhFormals->Nth(i)->GetType();
+                        if(curType != inhType){
+                            ReportError::OverrideMismatch(current);
+                            success = false;
+                        }
+                    }
+                }
+            }
+        }
+   }
+   return success;   
+}
+
+
 // Sets the SymbolTable up for the second pass, by opening all scopes back up and going to
 // the highest parent scope
 void SymbolTable::setForPass2(){
@@ -114,10 +152,14 @@ void SymbolTable::setForPass2(){
     ignore.clear();
 }
 
+
+// Returns the current scope index
 int SymbolTable::get_scope_level(){
     return cur_scope_level;
 }
 
+
+// For debugging. Prints the contents of the symbol table in the form [id] -> [Decl type]
 void SymbolTable::print_contents()
 {
     std::cout << "******** Symbol Table ******** " << std::endl;
@@ -126,14 +168,17 @@ void SymbolTable::print_contents()
         std::cout << "Bindings at level " << i <<  ":" << std::endl;
         std::map<std::string, Decl*> & cur = *it;
         for(std::map<std::string, Decl*>::iterator it2 = cur.begin(); it2 != cur.end(); it2++) {
-            std::cout << "\t" << it2->first << "   -> " << it2->second->GetPrintNameForNode() << std::endl;
+            std::cout << "\t" << it2->first << " -> " << it2->second->GetPrintNameForNode() << std::endl;
         }
 
     }
-    std::cout << "Closed Scopes: \n";
+    std::cout << "Closed Scopes: \n\t";
     std::set<int>::iterator iter;
-    for(iter=ignore.begin(); iter!=ignore.end(); iter++){
-        std::cout<<"\t" << (*iter)<<std::endl;
+    iter = ignore.begin();
+    std::cout<<(*iter);
+    iter++;
+    for(; iter!=ignore.end(); iter++){
+        std::cout<<", "<<(*iter);
     }
-    std::cout << "******** ********* ******** " << std::endl;
+    std::cout << "\n******** ********* ******** " << std::endl;
 }

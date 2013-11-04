@@ -32,9 +32,7 @@ bool VarDecl::Check(SymbolTable *SymTab){
 }
 
 bool VarDecl::Check2(SymbolTable *SymTab){
-    //std::cerr << "In Variable " << id << ":\n";
     if(!(type->Check2(SymTab))){
-        //std::cerr << id << " did not typecheck\n";
         ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
         type = Type::errorType;
         return false;
@@ -83,26 +81,26 @@ bool ClassDecl::Check2(SymbolTable *SymTab){
     //TODO: Something regarding inheritance and interfaces goes here
     List<int> *add_scopes = new List<int>();
     bool success = true;
+
+    // Adds the scope of an extended class to the current one
     if(extends != NULL ){
-        if( !(extends->Check2(SymTab))){
-           ReportError::IdentifierNotDeclared(extends->GetId(), LookingForClass);
-            success = false;
-        }
-        else{
-            add_scopes->Append(SymTab->lookup(extends->GetId()->GetName())->scopeIndex);
-        }
+        add_scopes->Append(SymTab->lookup(extends->GetId()->GetName())->getScopeIndex());
+//        std::cout << SymTab->lookup(extends->GetId()->GetName())->scopeIndex << std::endl;
     }
+
+    // Adds the scope of inherited classes to the current one
     for (int i = 0; i < implements->NumElements(); i++){
-        if(!(implements->Nth(i)->Check2(SymTab))){
-            ReportError::IdentifierNotDeclared(implements->Nth(i)->GetId(), LookingForInterface);
-            success = false;
-        }
-        else{
-            add_scopes->Append(SymTab->lookup(implements->Nth(i)->GetId()->GetName())->scopeIndex);
-        }
+        add_scopes->Append(SymTab->lookup(implements->Nth(i)->GetId()->GetName())->getScopeIndex());
+//        std::cout << SymTab->lookup(implements->Nth(i)->GetId()->GetName())->getScopeIndex() << std::endl;
+   
     }
     
     SymTab->enter_scope();
+    for(int i = 0; i < add_scopes->NumElements(); i++){
+        if (!SymTab->unify(scopeIndex, add_scopes->Nth(i))){
+            success = false;
+        }
+    }
     for(int i = 0; i < members->NumElements(); i++){
         if(success){
             success =  members->Nth(i)->Check2(SymTab);
