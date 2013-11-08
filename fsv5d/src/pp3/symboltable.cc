@@ -77,7 +77,13 @@ Decl* SymbolTable::lookup(char* x){
             cur_scope_level = tmp;
             return res;
         }
-        cur_scope_level = toParentScope(cur_scope_level-1);
+        if (cur_scope_level > 0){
+            cur_scope_level = toParentScope(cur_scope_level-1);
+        }
+        else{
+            cur_scope_level = tmp;
+            return NULL;
+        }
    }
     cur_scope_level = tmp;
     return NULL;
@@ -87,6 +93,8 @@ Decl* SymbolTable::lookup(char* x){
 // Returns NULL if the id is not in the current scope.
 Decl* SymbolTable::local_lookup(char* x){
     std::string name(x);
+//    std::cout << cur_scope_level << std::endl;
+    
     if (context[cur_scope_level].size() == 0){
         return NULL;
     }
