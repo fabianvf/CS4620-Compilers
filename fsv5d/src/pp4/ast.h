@@ -27,6 +27,8 @@
 #include <stdlib.h>   // for NULL
 #include "location.h"
 #include <iostream>
+//#include "symboltable.h"
+class SymbolTable;
 class Node 
 {
   protected:
@@ -47,6 +49,7 @@ class Node
     // subclasses should override PrintChildren() instead
     void Print(int indentLevel, const char *label = NULL); 
     virtual void PrintChildren(int indentLevel)  {}
+    virtual bool Check2(SymbolTable *SymTab) {return true;}
 };
    
 
@@ -64,6 +67,7 @@ class Identifier : public Node
     const char *GetPrintNameForNode()   { return "Identifier"; }
     void PrintChildren(int indentLevel);
     char* GetName();
+    bool Check2(SymbolTable *SymTab);
 };
 
 
@@ -77,6 +81,7 @@ class Error : public Node
   public:
     Error() : Node() {}
     const char *GetPrintNameForNode()   { return "Error"; }
+    //bool Check2(SymbolTable *SymTab);
 };
 
 

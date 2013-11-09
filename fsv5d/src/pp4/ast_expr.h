@@ -23,6 +23,7 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
+    virtual bool Check2(SymbolTable *SymTab) {return true;}
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -54,6 +55,7 @@ class DoubleConstant : public Expr
     DoubleConstant(yyltype loc, double val);
     const char *GetPrintNameForNode() { return "DoubleConstant"; }
     void PrintChildren(int indentLevel);
+
 };
 
 class BoolConstant : public Expr 
@@ -65,6 +67,7 @@ class BoolConstant : public Expr
     BoolConstant(yyltype loc, bool val);
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
+
 };
 
 class StringConstant : public Expr 
@@ -76,6 +79,7 @@ class StringConstant : public Expr
     StringConstant(yyltype loc, const char *val);
     const char *GetPrintNameForNode() { return "StringConstant"; }
     void PrintChildren(int indentLevel);
+
 };
 
 class NullConstant: public Expr 
@@ -83,6 +87,7 @@ class NullConstant: public Expr
   public: 
     NullConstant(yyltype loc) : Expr(loc) {}
     const char *GetPrintNameForNode() { return "NullConstant"; }
+
 };
 
 class Operator : public Node 
@@ -106,6 +111,7 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op, Expr *rhs); // for binary
     CompoundExpr(Operator *op, Expr *rhs);             // for unary
     void PrintChildren(int indentLevel);
+
 };
 
 class ArithmeticExpr : public CompoundExpr 

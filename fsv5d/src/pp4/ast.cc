@@ -47,3 +47,11 @@ char* Identifier::GetName(){
 void Identifier::PrintChildren(int indentLevel) {
     printf("%s", name);
 }
+
+bool Identifier::Check2(SymbolTable *SymTab){
+    if (SymTab->lookup(name) != NULL){
+        ReportError::IdentifierNotDeclared(this, LookingForVariable);
+        return false;
+    }
+    return true;
+}
