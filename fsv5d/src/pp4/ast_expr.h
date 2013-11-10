@@ -13,9 +13,10 @@
 #include "ast.h"
 #include "ast_stmt.h"
 #include "list.h"
+#include "ast_type.h"
 
-class NamedType; // for new
-class Type; // for NewArray
+//class NamedType; // for new
+//class Type; // for NewArray
 
 
 class Expr : public Stmt 
@@ -24,6 +25,8 @@ class Expr : public Stmt
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
     virtual bool Check2(SymbolTable *SymTab) {return true;}
+    virtual Type *GetType(SymbolTable *SymTab){return Type::errorType;}
+    virtual ~Expr(){}
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -44,6 +47,7 @@ class IntConstant : public Expr
     IntConstant(yyltype loc, int val);
     const char *GetPrintNameForNode() { return "IntConstant"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab){return Type::intType;}
 };
 
 class DoubleConstant : public Expr 
@@ -55,6 +59,7 @@ class DoubleConstant : public Expr
     DoubleConstant(yyltype loc, double val);
     const char *GetPrintNameForNode() { return "DoubleConstant"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab){return Type::doubleType;}
 
 };
 
@@ -67,6 +72,7 @@ class BoolConstant : public Expr
     BoolConstant(yyltype loc, bool val);
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab){return Type::boolType;}
 
 };
 
@@ -79,7 +85,7 @@ class StringConstant : public Expr
     StringConstant(yyltype loc, const char *val);
     const char *GetPrintNameForNode() { return "StringConstant"; }
     void PrintChildren(int indentLevel);
-
+    Type *GetType(SymbolTable *SymTab){return Type::stringType;}
 };
 
 class NullConstant: public Expr 
@@ -87,7 +93,7 @@ class NullConstant: public Expr
   public: 
     NullConstant(yyltype loc) : Expr(loc) {}
     const char *GetPrintNameForNode() { return "NullConstant"; }
-
+    Type *GetType(SymbolTable *SymTab){return Type::nullType;}
 };
 
 class Operator : public Node 
@@ -97,6 +103,9 @@ class Operator : public Node
     
   public:
     Operator(yyltype loc, const char *tok);
+    friend std::ostream& operator<<(std::ostream& o, Operator *op){
+        return o << op->tokenString;
+    }
     const char *GetPrintNameForNode() { return "Operator"; }
     void PrintChildren(int indentLevel);
  };
@@ -111,7 +120,7 @@ class CompoundExpr : public Expr
     CompoundExpr(Expr *lhs, Operator *op, Expr *rhs); // for binary
     CompoundExpr(Operator *op, Expr *rhs);             // for unary
     void PrintChildren(int indentLevel);
-
+    virtual Type *GetType(SymbolTable *SymTab){return Type::errorType;}
 };
 
 class ArithmeticExpr : public CompoundExpr 
@@ -120,6 +129,7 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "ArithmeticExpr"; }
+    Type *GetType(SymbolTable *SymTab);
 };
 
 class RelationalExpr : public CompoundExpr 
@@ -149,6 +159,8 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
+    Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable* SymTab);
 };
 
 class LValue : public Expr 
@@ -190,6 +202,7 @@ class FieldAccess : public LValue
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     const char *GetPrintNameForNode() { return "FieldAccess"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
 };
 
 /* Like field access, call is used both for qualified base.field()

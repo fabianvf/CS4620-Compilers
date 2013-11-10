@@ -69,7 +69,43 @@ void CompoundExpr::PrintChildren(int indentLevel) {
    right->Print(indentLevel+1);
 }
    
-  
+
+Type *ArithmeticExpr::GetType(SymbolTable *SymTab){
+    // TODO: Check for unary expressions
+    Type *leftType = left->GetType(SymTab);
+    Type *rightType = right->GetType(SymTab);
+    if(leftType != rightType){
+        if((leftType != Type::errorType) && rightType != Type::errorType){
+            ReportError::IncompatibleOperands(op, leftType, rightType);
+        }
+        if(rightType != Type::errorType){
+            return rightType;
+        }
+        else{
+            return leftType;
+        }
+    }
+    return rightType;
+}
+
+
+ 
+Type *AssignExpr::GetType(SymbolTable *SymTab){
+    Type *leftType = left->GetType(SymTab);
+    Type *rightType = right->GetType(SymTab);
+    if((leftType != rightType)){
+        if((dynamic_cast<NamedType*>(leftType) != NULL) && (rightType == Type::nullType)){
+            return leftType;
+        }
+        ReportError::IncompatibleOperands(op, leftType, rightType); 
+    }
+    return leftType;
+}
+
+bool AssignExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
+ 
 ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
@@ -94,6 +130,16 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
     field->Print(indentLevel+1);
   }
 
+Type *FieldAccess::GetType(SymbolTable *SymTab){
+    //TODO: Check for qualifier and such whatnots
+    VarDecl* d = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
+    if(d == NULL){
+        return Type::errorType;
+    }
+    else{
+        return d->GetType();
+    }
+}
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     Assert(f != NULL && a != NULL); // b can be be NULL (just means no explicit base)
     base = b;
@@ -111,10 +157,25 @@ bool Call::Check2(SymbolTable *SymTab){
         ReportError::IdentifierNotDeclared(field, LookingForFunction);
         return false;
     }
+    int num = actuals->NumElements();
     if(fn->GetFormals()->NumElements() != actuals->NumElements()){
         ReportError::NumArgsMismatch(field,fn->GetFormals()->NumElements(), actuals->NumElements() );
         success = false;
+        if(fn->GetFormals()->NumElements() < actuals->NumElements()){ 
+            num = fn->GetFormals()->NumElements();
+        }
     }
+    Expr* argument;
+    VarDecl* formal;
+    for(int i =0; i < num;i++){
+        argument = actuals->Nth(i);
+        formal = fn->GetFormals()->Nth(i);
+        if(formal->GetType() != argument->GetType(SymTab)){
+            ReportError::ArgMismatch(this, i, argument->GetType(SymTab), formal->GetType());  
+            success = false; 
+        }
+    }
+    
     /*(for(int i = 0; i < actuals->NumElements(); i++){
         
     }*/
