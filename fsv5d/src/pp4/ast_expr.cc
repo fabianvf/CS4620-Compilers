@@ -71,25 +71,60 @@ void CompoundExpr::PrintChildren(int indentLevel) {
    
 
 Type *ArithmeticExpr::GetType(SymbolTable *SymTab){
-    // TODO: Check for unary expressions
-    Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
-    if(leftType != rightType){
-        if((leftType != Type::errorType) && rightType != Type::errorType){
-            ReportError::IncompatibleOperands(op, leftType, rightType);
+    if(left == NULL){
+        if((rightType != Type::errorType) && (rightType != Type::intType) && (rightType != Type::doubleType)){
+            ReportError::IncompatibleOperand(op, rightType);
+            return Type::errorType;
         }
-        if(rightType != Type::errorType){
-            return rightType;
-        }
-        else{
-            return leftType;
+        return rightType;
+    }
+    Type *leftType = left->GetType(SymTab);
+    
+    if((leftType != rightType) || ((leftType != Type::intType) && (leftType != Type::doubleType)) || ((rightType != Type::intType) && (rightType != Type::doubleType))){
+        if(leftType != Type::errorType && rightType != Type::errorType){
+            ReportError::IncompatibleOperands(op, leftType, rightType);   
         }
     }
     return rightType;
 }
 
+Type *RelationalExpr::GetType(SymbolTable *SymTab){
+    Type *leftType = left->GetType(SymTab);
+    Type *rightType = right->GetType(SymTab);
+    if((leftType != rightType) || ((leftType != Type::errorType) && (rightType != Type::errorType) && (leftType != Type::intType) && (leftType != Type::doubleType)) || ((rightType != Type::intType) && (rightType != Type::doubleType))){
+        ReportError::IncompatibleOperands(op, leftType, rightType);
+    }
+    return Type::boolType;
+}
 
- 
+
+Type *EqualityExpr::GetType(SymbolTable *SymTab){
+    Type *leftType = left->GetType(SymTab);
+    Type *rightType = right->GetType(SymTab);
+    if((leftType != rightType) || ((leftType != Type::errorType) && (rightType != Type::errorType) )){
+        ReportError::IncompatibleOperands(op, leftType, rightType);
+    }
+    return Type::boolType;
+}
+
+Type *LogicalExpr::GetType(SymbolTable *SymTab){
+    Type *rightType = right->GetType(SymTab);
+    if(left == NULL){
+        if((rightType != Type::boolType) && (rightType != Type::errorType)){
+            ReportError::IncompatibleOperand(op, rightType);
+        }
+        return Type::boolType;
+    }
+    Type *leftType = left->GetType(SymTab);
+
+    if((leftType != rightType) || ((leftType != Type::boolType) && (leftType != Type::errorType) && (rightType != Type::boolType) && (rightType != Type::errorType))) {
+        ReportError::IncompatibleOperands(op, leftType, rightType);
+    }
+    return Type::boolType;
+}
+
+
 Type *AssignExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
@@ -134,6 +169,7 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
     //TODO: Check for qualifier and such whatnots
     VarDecl* d = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
     if(d == NULL){
+        ReportError::IdentifierNotDeclared(field, LookingForVariable);
         return Type::errorType;
     }
     else{
