@@ -68,6 +68,7 @@ bool ClassDecl::Check(SymbolTable *SymTab){
             inherits = true;
         }
         SymTab->add_scope();
+        SymTab->add_class_scope();
         scopeIndex = SymTab->get_scope_level();
         for(int i = 0; i < members->NumElements(); i++){
             members->Nth(i)->Check(SymTab);

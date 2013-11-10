@@ -177,6 +177,8 @@ class This : public Expr
   public:
     This(yyltype loc) : Expr(loc) {}
     const char *GetPrintNameForNode() { return "This"; }
+    bool Check2(SymbolTable *SymTab); 
+    Type *GetType(SymbolTable *SymTab);
 };
 
 class ArrayAccess : public LValue 

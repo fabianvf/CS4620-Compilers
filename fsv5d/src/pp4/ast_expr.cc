@@ -132,7 +132,9 @@ Type *AssignExpr::GetType(SymbolTable *SymTab){
         if((dynamic_cast<NamedType*>(leftType) != NULL) && (rightType == Type::nullType)){
             return leftType;
         }
-        ReportError::IncompatibleOperands(op, leftType, rightType); 
+        if((leftType != Type::errorType) && (rightType != Type::errorType)){
+            ReportError::IncompatibleOperands(op, leftType, rightType); 
+        }
     }
     return leftType;
 }
@@ -233,8 +235,23 @@ void Call::PrintChildren(int indentLevel) {
     if (base) base->Print(indentLevel+1);
     field->Print(indentLevel+1);
     actuals->PrintAll(indentLevel+1, "(actuals) ");
-  }
- 
+}
+
+bool This::Check2(SymbolTable *SymTab){
+    if(!SymTab->in_class_scope()){
+        ReportError::ThisOutsideClassScope(this);
+        return false;
+    }
+    return true;
+}
+
+Type *This::GetType(SymbolTable *SymTab){
+    if(!this->Check2(SymTab)){
+        return Type::errorType;
+    }
+    return Type::intType;
+}
+
 
 NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) { 
   Assert(c != NULL);
@@ -266,4 +283,4 @@ void PostfixExpr::PrintChildren(int indentLevel) {
     lvalue->Print(indentLevel+1);
     op->Print(indentLevel+1);
 }
-       
+      

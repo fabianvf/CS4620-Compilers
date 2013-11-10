@@ -170,7 +170,12 @@ int SymbolTable::get_scope_level(){
     return cur_scope_level;
 }
 
-
+bool SymbolTable::in_class_scope(){
+    return (class_scopes.find(cur_scope_level) != class_scopes.end());
+}
+void SymbolTable::add_class_scope(){
+    class_scopes.insert(cur_scope_level);
+}
 // For debugging. Prints the contents of the symbol table in the form [id] -> [Decl type]
 void SymbolTable::print_contents()
 {

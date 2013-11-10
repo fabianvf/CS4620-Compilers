@@ -27,6 +27,7 @@ class SymbolTable
   protected:
     std::vector<std::map<std::string, Decl*> > context;
     std::set<int> ignore;
+    std::set<int> class_scopes;
     int cur_scope_level;
     int toParentScope(int scope_level);
     int toNextChildScope(int scope_level);
@@ -41,6 +42,8 @@ class SymbolTable
     bool add(Decl* x);
     void setForPass2();
     int get_scope_level();
+    bool in_class_scope();
+    void add_class_scope();
     void print_contents();
 };
    
