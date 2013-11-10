@@ -206,6 +206,7 @@ class FieldAccess : public LValue
     const char *GetPrintNameForNode() { return "FieldAccess"; }
     void PrintChildren(int indentLevel);
     Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 /* Like field access, call is used both for qualified base.field()

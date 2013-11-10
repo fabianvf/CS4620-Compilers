@@ -176,6 +176,11 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
         return d->GetType();
     }
 }
+
+bool FieldAccess::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
+
 Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     Assert(f != NULL && a != NULL); // b can be be NULL (just means no explicit base)
     base = b;
@@ -186,8 +191,14 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
 
 bool Call::Check2(SymbolTable *SymTab){
     // TODO: Need to check if base is used, and if so, if within class
-    // TODO: Need to make sure actuals match parameters in function
     bool success = true;
+
+    for(int i = 0; i < actuals->NumElements(); i++){
+        if(!actuals->Nth(i)->Check2(SymTab)){
+            success = false;
+        }
+    }
+
     FnDecl *fn = dynamic_cast<FnDecl*>(SymTab->lookup(field->GetName()));
     if(fn == NULL){
         ReportError::IdentifierNotDeclared(field, LookingForFunction);
