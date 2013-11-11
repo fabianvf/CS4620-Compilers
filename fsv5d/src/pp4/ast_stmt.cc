@@ -253,12 +253,21 @@ void PrintStmt::PrintChildren(int indentLevel) {
 }
 
 bool PrintStmt::Check(SymbolTable* SymTab){
-    //TODO
+    // Do Nothing
     return true;
 }
 bool PrintStmt::Check2(SymbolTable* SymTab){
-    //TODO
-    return true;
+    bool success = true;
+    for(int i = 0; i < args->NumElements(); i++){
+        Type* t = args->Nth(i)->GetType(SymTab);
+        if((t != Type::intType)
+            && (t != Type::boolType)
+            && (t != Type::stringType)){
+            ReportError::PrintArgMismatch(args->Nth(i), i+1, t);
+            success = false;
+        }
+    }
+    return success;
 }
 
 
