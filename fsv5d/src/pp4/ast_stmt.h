@@ -169,6 +169,8 @@ class Case : public Node
     Case(IntConstant *v, List<Stmt*> *stmts);
     const char *GetPrintNameForNode() { return value ? "Case" :"Default"; }
     void PrintChildren(int indentLevel);
+    bool Check(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class SwitchStmt : public Stmt

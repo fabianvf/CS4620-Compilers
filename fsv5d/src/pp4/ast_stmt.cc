@@ -262,7 +262,8 @@ bool PrintStmt::Check2(SymbolTable* SymTab){
         Type* t = args->Nth(i)->GetType(SymTab);
         if((t != Type::intType)
             && (t != Type::boolType)
-            && (t != Type::stringType)){
+            && (t != Type::stringType)
+            && (t != Type::errorType)){
             ReportError::PrintArgMismatch(args->Nth(i), i+1, t);
             success = false;
         }
@@ -282,11 +283,8 @@ void Case::PrintChildren(int indentLevel) {
     if (value) value->Print(indentLevel+1);
     stmts->PrintAll(indentLevel+1);
 }
-/*
-bool Case::Check(SymbolTable* SymTab){
-    return true;
-}
-*/
+
+
 SwitchStmt::SwitchStmt(Expr *e, List<Case*> *c) {
     Assert(e != NULL && c != NULL);
     (expr=e)->SetParent(this);
@@ -298,15 +296,72 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     cases->PrintAll(indentLevel+1);
 }
 
+
+bool Case::Check(SymbolTable* SymTab){
+    bool success = true;
+
+    for(int i = 0; i < stmts->NumElements(); i++){
+        if(success){
+           success = stmts->Nth(i)->Check(SymTab); 
+        }
+        else{
+            stmts->Nth(i)->Check(SymTab);
+        }
+    }
+
+    return success;
+}
+
+
+bool Case::Check2(SymbolTable* SymTab){
+    bool success = true;
+
+    for(int i = 0; i < stmts->NumElements(); i++){
+        if(success){
+           success = stmts->Nth(i)->Check2(SymTab); 
+        }
+        else{
+            stmts->Nth(i)->Check2(SymTab);
+        }
+    }
+
+    return success;
+}
+
+
 bool SwitchStmt::Check(SymbolTable* SymTab){
-    //TODO
-    return true;
+    bool success = true;
+    for(int i = 0; i < cases->NumElements(); i++){
+        if(success){
+            success = cases->Nth(i)->Check(SymTab);
+        }
+        else{
+            cases->Nth(i)->Check(SymTab);
+        }
+    }
+    if(!expr->Check(SymTab)){
+        return false;
+    }
+
+    return success;
 }
 
 
 bool SwitchStmt::Check2(SymbolTable* SymTab){
-    //TODO
-    return true;
+    bool success = true;
+    for(int i = 0; i < cases->NumElements(); i++){
+        if(success){
+            success = cases->Nth(i)->Check2(SymTab);
+        }
+        else{
+            cases->Nth(i)->Check2(SymTab);
+        }
+    }
+    if(!expr->Check2(SymTab)){
+        return false;
+    }
+
+    return success;
 }
 
 

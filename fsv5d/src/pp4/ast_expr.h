@@ -243,6 +243,8 @@ class NewExpr : public Expr
     NewExpr(yyltype loc, NamedType *clsType);
     const char *GetPrintNameForNode() { return "NewExpr"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class NewArrayExpr : public Expr
@@ -255,6 +257,8 @@ class NewArrayExpr : public Expr
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
     const char *GetPrintNameForNode() { return "NewArrayExpr"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class ReadIntegerExpr : public Expr
@@ -280,6 +284,8 @@ class PostfixExpr : public Expr
     PostfixExpr(LValue *lv, Operator *op);
     const char *GetPrintNameForNode() { return "PostfixExpr"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
     
 #endif

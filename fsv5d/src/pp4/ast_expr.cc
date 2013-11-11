@@ -98,8 +98,10 @@ bool ArithmeticExpr::Check2(SymbolTable *SymTab){
 Type *RelationalExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
-    if((leftType != rightType) || ((leftType != Type::errorType) && (rightType != Type::errorType) && (leftType != Type::intType) && (leftType != Type::doubleType)) || ((rightType != Type::intType) && (rightType != Type::doubleType))){
-        ReportError::IncompatibleOperands(op, leftType, rightType);
+    if((leftType != rightType) || ((leftType != Type::intType) && (leftType != Type::doubleType)) || ((rightType != Type::intType) && (rightType != Type::doubleType))){
+        if((leftType != Type::errorType) && (rightType != Type::errorType)){
+            ReportError::IncompatibleOperands(op, leftType, rightType);
+        }
     }
     return Type::boolType;
 }
@@ -137,8 +139,10 @@ Type *LogicalExpr::GetType(SymbolTable *SymTab){
     }
     Type *leftType = left->GetType(SymTab);
 
-    if((leftType != rightType) || ((leftType != Type::boolType) && (leftType != Type::errorType) && (rightType != Type::boolType) && (rightType != Type::errorType))) {
-        ReportError::IncompatibleOperands(op, leftType, rightType);
+    if((leftType != rightType) || ((leftType != Type::boolType) || (rightType != Type::boolType))) {
+        if((leftType != Type::errorType) && (rightType != Type::errorType)){
+            ReportError::IncompatibleOperands(op, leftType, rightType);
+        }
     }
     return Type::boolType;
 }
@@ -313,6 +317,18 @@ NewExpr::NewExpr(yyltype loc, NamedType *c) : Expr(loc) {
   (cType=c)->SetParent(this);
 }
 
+Type *NewExpr::GetType(SymbolTable *SymTab){
+    if(!cType->Check2(SymTab) || (dynamic_cast<ClassDecl*>(SymTab->lookup(cType->GetName())) == NULL)){
+        ReportError::IdentifierNotDeclared(cType->GetId(), LookingForClass);
+        return Type::errorType;
+    }
+    return cType;
+}
+
+bool NewExpr::Check2(SymbolTable *SymTab){
+    return this->GetType(SymTab) != Type::errorType;
+}
+
 void NewExpr::PrintChildren(int indentLevel) {	
     cType->Print(indentLevel+1);
 }
@@ -323,6 +339,20 @@ NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     (elemType=et)->SetParent(this);
 }
 
+Type *NewArrayExpr::GetType(SymbolTable *SymTab){
+    if(size->GetType(SymTab) != Type::intType){
+        ReportError::NewArraySizeNotInteger(size);   
+    }
+    if(!elemType->Check2(SymTab) || (dynamic_cast<ClassDecl*>(SymTab->lookup(elemType->GetName())) == NULL)){
+        ReportError::IdentifierNotDeclared(elemType->GetId(), LookingForType);
+    }
+    return elemType;
+
+}
+
+bool NewArrayExpr::Check2(SymbolTable *SymTab){
+    return GetType(SymTab) != Type::errorType;
+}
 void NewArrayExpr::PrintChildren(int indentLevel) {
     size->Print(indentLevel+1);
     elemType->Print(indentLevel+1);
@@ -334,6 +364,13 @@ PostfixExpr::PostfixExpr(LValue *lv, Operator *o) : Expr(Join(lv->GetLocation(),
     (op=o)->SetParent(this);
 }
 
+Type *PostfixExpr::GetType(SymbolTable *SymTab){
+    return lvalue->GetType(SymTab);
+}
+
+bool PostfixExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
 void PostfixExpr::PrintChildren(int indentLevel) {
     lvalue->Print(indentLevel+1);
     op->Print(indentLevel+1);
