@@ -110,8 +110,14 @@ bool RelationalExpr::Check2(SymbolTable *SymTab){
 Type *EqualityExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
-    if((leftType != rightType) || ((leftType != Type::errorType) && (rightType != Type::errorType) )){
-        ReportError::IncompatibleOperands(op, leftType, rightType);
+    if(leftType != rightType) {
+        if((dynamic_cast<NamedType*>(leftType) != NULL) && (rightType == Type::nullType)){
+            return Type::boolType;
+        }
+     
+        if((leftType != Type::errorType) && (rightType != Type::errorType)){
+            ReportError::IncompatibleOperands(op, leftType, rightType);
+        }
     }
     return Type::boolType;
 }

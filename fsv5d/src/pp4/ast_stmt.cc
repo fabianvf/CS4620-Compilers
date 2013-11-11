@@ -211,13 +211,24 @@ void ReturnStmt::PrintChildren(int indentLevel) {
 }
   
 bool ReturnStmt::Check(SymbolTable* SymTab){
-    //TODO
+    // Do Nothing 
     return true;
 }
 
 bool ReturnStmt::Check2(SymbolTable* SymTab){
-    //TODO
-    return true;
+    Node *n = this;
+    while(dynamic_cast<Program*>(n) == NULL){
+        if(dynamic_cast<FnDecl*>(n) != NULL){
+            FnDecl* fn = dynamic_cast<FnDecl*>(n);
+            if(fn->GetType() != expr->GetType(SymTab)){
+                ReportError::ReturnMismatch(this, expr->GetType(SymTab), fn->GetType());
+                return false;
+            }
+            return true;
+        }
+        n = n->GetParent();
+    }
+    return false;
 }
 
 
