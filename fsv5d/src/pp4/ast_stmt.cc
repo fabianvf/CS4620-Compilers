@@ -231,6 +231,17 @@ bool ReturnStmt::Check2(SymbolTable* SymTab){
     return false;
 }
 
+bool BreakStmt::Check2(SymbolTable *SymTab){
+    Node *n = this;
+    while(dynamic_cast<Program*>(n) == NULL){
+        if(dynamic_cast<LoopStmt*>(n) != NULL){
+            return true;
+        }
+        n = n->GetParent();
+    }
+    ReportError::BreakOutsideLoop(this);
+    return false;
+}
 
 PrintStmt::PrintStmt(List<Expr*> *a) {    
     Assert(a != NULL);

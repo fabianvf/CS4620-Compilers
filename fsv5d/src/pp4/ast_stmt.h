@@ -124,6 +124,7 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "BreakStmt"; }
+    bool Check2(SymbolTable *SymTab);
 
 };
 
