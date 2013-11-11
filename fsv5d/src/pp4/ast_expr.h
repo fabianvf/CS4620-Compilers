@@ -194,6 +194,8 @@ class ArrayAccess : public LValue
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
     const char *GetPrintNameForNode() { return "ArrayAccess"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 /* Note that field access is used both for qualified names

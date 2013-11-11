@@ -63,9 +63,9 @@ class ArrayType : public Type
     char* GetName();    
     const char *GetPrintNameForNode() { return "ArrayType"; }
     void PrintChildren(int indentLevel);
-    void Print(std::ostream& o) { o << elemType << "[]";}
+    void PrintId(std::ostream& o) { o << elemType->GetName() << "[]";}
     bool Check2(SymbolTable* SymTab);
-    Type* GetType(){return elemType;}
+    Type* GetElemType(){return elemType;}
 };
 
  

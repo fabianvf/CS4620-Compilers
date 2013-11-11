@@ -152,9 +152,15 @@ bool LogicalExpr::Check2(SymbolTable *SymTab){
 }
 Type *AssignExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
-    Type *rightType = right->GetType(SymTab);
+    Type *rightType = right->GetType(SymTab); 
     if((leftType != rightType)){
         if((dynamic_cast<NamedType*>(leftType) != NULL) && (rightType == Type::nullType)){
+            return leftType;
+        }
+        if((dynamic_cast<ArrayType*>(leftType) != NULL) 
+            && (dynamic_cast<ArrayType*>(rightType) != NULL) 
+            && (dynamic_cast<ArrayType*>(leftType)->GetElemType() == (dynamic_cast<ArrayType*>(leftType)->GetElemType()))){
+            std::cout << "HERE" << std::endl;
             return leftType;
         }
         if((leftType != Type::errorType) && (rightType != Type::errorType)){
@@ -172,6 +178,25 @@ ArrayAccess::ArrayAccess(yyltype loc, Expr *b, Expr *s) : LValue(loc) {
     (base=b)->SetParent(this); 
     (subscript=s)->SetParent(this);
 }
+
+
+Type *ArrayAccess::GetType(SymbolTable *SymTab){
+    if (subscript->GetType(SymTab) != Type::intType && subscript->GetType(SymTab) != Type::errorType){
+        ReportError::SubscriptNotInteger(subscript);
+    }
+    ArrayType* at = dynamic_cast<ArrayType*>(base->GetType(SymTab));
+    if(at == NULL){
+        ReportError::BracketsOnNonArray(base);
+        return Type::errorType;
+    }
+    
+    return at->GetElemType();
+}
+
+bool ArrayAccess::Check2(SymbolTable *SymTab){
+    return true;
+}
+
 
 void ArrayAccess::PrintChildren(int indentLevel) {
     base->Print(indentLevel+1);
@@ -192,8 +217,7 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
     field->Print(indentLevel+1);
   }
 
-Type *FieldAccess::GetType(SymbolTable *SymTab){
-    //TODO:Get printing of errors with arrays working 
+Type *FieldAccess::GetType(SymbolTable *SymTab){ 
     // This bit is for class variables
     if(base != NULL){
         ClassDecl *cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName())); 
@@ -222,10 +246,9 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
         ReportError::IdentifierNotDeclared(field, LookingForVariable);
         return Type::errorType;
     }
-    else{
-        return d->GetType();
-    }
+    return d->GetType();
 }
+
 
 bool FieldAccess::Check2(SymbolTable *SymTab){
     return (this->GetType(SymTab) != Type::errorType);
@@ -241,13 +264,16 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
 
 
 Type *Call::GetType(SymbolTable *SymTab){
-    // TODO: Need to check if base is used, and if so, if within class
-
     for(int i = 0; i < actuals->NumElements(); i++){
         actuals->Nth(i)->Check2(SymTab);
     }
     // This bit is for class method calls
     if(base != NULL){
+        //Except for this special case of array.length()
+        ArrayType *at = dynamic_cast<ArrayType*>(base->GetType(SymTab));
+        if((at != NULL && strcmp(field->GetName(), "length"))){
+            return Type::intType;
+        }
         ClassDecl* cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName()));
         if(cDecl == NULL){
             ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
@@ -343,10 +369,14 @@ Type *NewArrayExpr::GetType(SymbolTable *SymTab){
     if(size->GetType(SymTab) != Type::intType){
         ReportError::NewArraySizeNotInteger(size);   
     }
-    if(!elemType->Check2(SymTab) || (dynamic_cast<ClassDecl*>(SymTab->lookup(elemType->GetName())) == NULL)){
+    Identifier *id = elemType->GetId();
+    if(!elemType->Check2(SymTab) || ((id != NULL) && (dynamic_cast<ClassDecl*>(SymTab->lookup(id->GetName())) == NULL))){
         ReportError::IdentifierNotDeclared(elemType->GetId(), LookingForType);
+        return Type::errorType;
     }
-    return elemType;
+    /// TODO
+    return Type::errorType;
+//    return (new Type(elemType->GetName()));
 
 }
 
