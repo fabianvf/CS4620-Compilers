@@ -200,7 +200,20 @@ bool Call::Check2(SymbolTable *SymTab){
             success = false;
         }
     }
-
+    if(base != NULL){
+        ClassDecl* cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName()));
+        if(cDecl == NULL){
+            ReportError::IdentifierNotDeclared(base->GetType(SymTab)->GetId(), LookingForVariable);
+            success = false;
+        }
+        else{
+           if(!SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex())){
+               ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
+               success = false;
+           }
+        }
+        return success;
+    }
     FnDecl *fn = dynamic_cast<FnDecl*>(SymTab->lookup(field->GetName()));
     if(fn == NULL){
         ReportError::IdentifierNotDeclared(field, LookingForFunction);
@@ -225,9 +238,6 @@ bool Call::Check2(SymbolTable *SymTab){
         }
     }
     
-    /*(for(int i = 0; i < actuals->NumElements(); i++){
-        
-    }*/
     return success;
     
 }

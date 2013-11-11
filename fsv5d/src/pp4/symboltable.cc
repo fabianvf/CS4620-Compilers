@@ -176,6 +176,15 @@ bool SymbolTable::in_class_scope(){
 void SymbolTable::add_class_scope(){
     class_scopes.insert(cur_scope_level);
 }
+
+bool SymbolTable::find_in_scope(char *x, int scope){
+   int tmp = cur_scope_level;
+   cur_scope_level = scope;
+   bool found = (local_lookup(x) != NULL);
+   cur_scope_level = tmp;
+   return found;
+
+}
 // For debugging. Prints the contents of the symbol table in the form [id] -> [Decl type]
 void SymbolTable::print_contents()
 {

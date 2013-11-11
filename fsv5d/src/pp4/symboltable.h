@@ -44,6 +44,7 @@ class SymbolTable
     int get_scope_level();
     bool in_class_scope();
     void add_class_scope();
+    bool find_in_scope(char *x, int scope);
     void print_contents();
 };
    
