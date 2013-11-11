@@ -65,6 +65,10 @@ ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
 Identifier* ArrayType::GetId(){
     return elemType->GetId();
 }
+
+char *ArrayType::GetName(){
+    return elemType->GetName();
+}
 bool ArrayType::Check2(SymbolTable *SymTab){
     if((elemType == Type::intType) || (elemType == Type::doubleType) ||(elemType == Type::boolType) || (elemType == Type::stringType)){return true;}
     return (SymTab->lookup(elemType->GetId()->GetName()) != NULL);

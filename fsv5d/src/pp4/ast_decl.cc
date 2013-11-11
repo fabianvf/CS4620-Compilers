@@ -31,10 +31,23 @@ bool VarDecl::Check(SymbolTable *SymTab){
     return SymTab->add(this);
 }
 
+/*bool isPrimitiveType(Type* t){
+    Type* bt = t->GetType();
+    return (bt == Type::intType 
+        || bt == Type::doubleType
+        || bt == Type::stringType
+        || bt == Type::nullType
+        || bt == Type::boolType
+        || bt == Type::voidType
+        || bt == Type::errorType);
+}*/
 bool VarDecl::Check2(SymbolTable *SymTab){
-    if(!(type->Check2(SymTab))){
-        ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
-        type = Type::errorType;
+    // TODO: Named types can only instantiate if they are class or interface declarations
+    if(type->GetId() == NULL) { return true;}
+    if(!(type->Check2(SymTab)) 
+        || ((dynamic_cast<ClassDecl*>(SymTab->lookup(type->GetName())) == NULL) 
+        && (dynamic_cast<InterfaceDecl*>(SymTab->lookup(type->GetName())) == NULL))) {
+        ReportError::IdentifierNotDeclared(type->GetId(), LookingForType); 
         return false;
     }
     return true;
@@ -85,7 +98,7 @@ bool ClassDecl::Check2(SymbolTable *SymTab){
 
     // Adds the scope of an extended class to the current one
     if(extends != NULL ){
-        if(!extends->Check2(SymTab)){
+        if((!extends->Check2(SymTab)) || (dynamic_cast<ClassDecl*>(SymTab->lookup(extends->GetName())) == NULL)) {
             ReportError::IdentifierNotDeclared(extends->GetId(), LookingForClass);
             success = false;
         }
@@ -97,7 +110,7 @@ bool ClassDecl::Check2(SymbolTable *SymTab){
 
     // Adds the scope of inherited classes to the current one
     for (int i = 0; i < implements->NumElements(); i++){
-        if(!implements->Nth(i)->Check2(SymTab)){
+        if((!implements->Nth(i)->Check2(SymTab)) || (dynamic_cast<InterfaceDecl*>(SymTab->lookup(implements->Nth(i)->GetName())) == NULL)){
             ReportError::IdentifierNotDeclared(implements->Nth(i)->GetId(), LookingForInterface);
             success = false;
         }

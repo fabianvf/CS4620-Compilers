@@ -81,13 +81,19 @@ Type *ArithmeticExpr::GetType(SymbolTable *SymTab){
     }
     Type *leftType = left->GetType(SymTab);
     
-    if((leftType != rightType) || ((leftType != Type::intType) && (leftType != Type::doubleType)) || ((rightType != Type::intType) && (rightType != Type::doubleType))){
+    if((leftType != rightType)){
         if(leftType != Type::errorType && rightType != Type::errorType){
-            ReportError::IncompatibleOperands(op, leftType, rightType);   
+            ReportError::IncompatibleOperands(op, leftType, rightType);
+            return Type::errorType; 
         }
     }
     return rightType;
 }
+
+bool ArithmeticExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
+
 
 Type *RelationalExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
@@ -98,7 +104,9 @@ Type *RelationalExpr::GetType(SymbolTable *SymTab){
     return Type::boolType;
 }
 
-
+bool RelationalExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
 Type *EqualityExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
@@ -107,6 +115,11 @@ Type *EqualityExpr::GetType(SymbolTable *SymTab){
     }
     return Type::boolType;
 }
+
+bool EqualityExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
+
 
 Type *LogicalExpr::GetType(SymbolTable *SymTab){
     Type *rightType = right->GetType(SymTab);
@@ -124,7 +137,9 @@ Type *LogicalExpr::GetType(SymbolTable *SymTab){
     return Type::boolType;
 }
 
-
+bool LogicalExpr::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);
+}
 Type *AssignExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab);
@@ -168,7 +183,30 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
   }
 
 Type *FieldAccess::GetType(SymbolTable *SymTab){
-    //TODO: Check for qualifier and such whatnots
+    //TODO:Get printing of errors with arrays working 
+    // This bit is for class variables
+    if(base != NULL){
+        ClassDecl *cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName())); 
+        Type* bt = base->GetType(SymTab);
+        
+        if (cDecl == NULL){
+            ReportError::FieldNotFoundInBase(field, bt);
+            return Type::errorType;
+        }
+        VarDecl* v = dynamic_cast<VarDecl*>(SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex()));
+        if (v == NULL){
+            ReportError::FieldNotFoundInBase(field, bt);
+            return Type::errorType;
+        }
+ 
+        if(!SymTab->in_class_scope()){
+            ReportError::InaccessibleField(field, bt);
+            return Type::errorType;
+        }
+        return v->GetType();
+   }
+    
+    // This bit is for normal variables
     VarDecl* d = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
     if(d == NULL){
         ReportError::IdentifierNotDeclared(field, LookingForVariable);
@@ -191,38 +229,37 @@ Call::Call(yyltype loc, Expr *b, Identifier *f, List<Expr*> *a) : Expr(loc)  {
     (actuals=a)->SetParentAll(this);
 }
 
-bool Call::Check2(SymbolTable *SymTab){
+
+Type *Call::GetType(SymbolTable *SymTab){
     // TODO: Need to check if base is used, and if so, if within class
-    bool success = true;
 
     for(int i = 0; i < actuals->NumElements(); i++){
-        if(!actuals->Nth(i)->Check2(SymTab)){
-            success = false;
-        }
+        actuals->Nth(i)->Check2(SymTab);
     }
+    // This bit is for class method calls
     if(base != NULL){
         ClassDecl* cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName()));
         if(cDecl == NULL){
-            ReportError::IdentifierNotDeclared(base->GetType(SymTab)->GetId(), LookingForVariable);
-            success = false;
+            ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
+            return Type::errorType;
         }
-        else{
-           if(!SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex())){
-               ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
-               success = false;
-           }
+        FnDecl *f = dynamic_cast<FnDecl*>(SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex()));
+        if(f == NULL){
+           ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
+           return Type::errorType;
         }
-        return success;
+        return f->GetType();
     }
+    
+    // This bit is for normal function calls
     FnDecl *fn = dynamic_cast<FnDecl*>(SymTab->lookup(field->GetName()));
     if(fn == NULL){
         ReportError::IdentifierNotDeclared(field, LookingForFunction);
-        return false;
+        return Type::errorType;
     }
     int num = actuals->NumElements();
     if(fn->GetFormals()->NumElements() != actuals->NumElements()){
         ReportError::NumArgsMismatch(field,fn->GetFormals()->NumElements(), actuals->NumElements() );
-        success = false;
         if(fn->GetFormals()->NumElements() < actuals->NumElements()){ 
             num = fn->GetFormals()->NumElements();
         }
@@ -233,13 +270,15 @@ bool Call::Check2(SymbolTable *SymTab){
         argument = actuals->Nth(i);
         formal = fn->GetFormals()->Nth(i);
         if(formal->GetType() != argument->GetType(SymTab)){
-            ReportError::ArgMismatch(this, i, argument->GetType(SymTab), formal->GetType());  
-            success = false; 
+            ReportError::ArgMismatch(argument, i+1, argument->GetType(SymTab), formal->GetType());  
         }
     }
     
-    return success;
-    
+    return fn->GetType();
+ 
+}
+bool Call::Check2(SymbolTable *SymTab){
+    return (this->GetType(SymTab) != Type::errorType);   
 }
 void Call::PrintChildren(int indentLevel) {
     if (base) base->Print(indentLevel+1);

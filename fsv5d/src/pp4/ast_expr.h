@@ -130,6 +130,7 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "ArithmeticExpr"; }
     Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class RelationalExpr : public CompoundExpr 
@@ -138,6 +139,7 @@ class RelationalExpr : public CompoundExpr
     RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "RelationalExpr"; }
     Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class EqualityExpr : public CompoundExpr 
@@ -146,6 +148,7 @@ class EqualityExpr : public CompoundExpr
     EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
     Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class LogicalExpr : public CompoundExpr 
@@ -155,6 +158,7 @@ class LogicalExpr : public CompoundExpr
     LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
     Type *GetType(SymbolTable *SymTab);
+    bool Check2(SymbolTable *SymTab);
 };
 
 class AssignExpr : public CompoundExpr 
@@ -226,6 +230,7 @@ class Call : public Expr
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     const char *GetPrintNameForNode() { return "Call"; }
     void PrintChildren(int indentLevel);
+    Type *GetType(SymbolTable *SymTab);
     bool Check2(SymbolTable *SymTab);
 };
 

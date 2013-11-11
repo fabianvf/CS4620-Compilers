@@ -113,9 +113,17 @@ bool ForStmt::Check(SymbolTable* SymTab){
 
 bool ForStmt::Check2(SymbolTable* SymTab){
     bool success = true;
-    
-
-    return body->Check2(SymTab);
+        if(test->GetType(SymTab) != Type::boolType){
+            ReportError::TestNotBoolean(test);
+            success = false;
+        }
+    if(success){
+        success =  body->Check2(SymTab);
+    }
+    else{
+        body->Check2(SymTab);
+    }
+    return success;
 }
 
 
@@ -136,7 +144,18 @@ bool WhileStmt::Check(SymbolTable* SymTab){
 }
 
 bool WhileStmt::Check2(SymbolTable* SymTab){
-    return body->Check2(SymTab);
+    bool success = true;
+    if(test->GetType(SymTab) != Type::boolType){
+        ReportError::TestNotBoolean(test);
+        success = false;
+    }
+    if(success){
+        success =  body->Check2(SymTab);
+    }
+    else{
+        body->Check2(SymTab);
+    }
+    return success;
 }
 
 
@@ -152,19 +171,30 @@ void IfStmt::PrintChildren(int indentLevel) {
     if (elseBody) elseBody->Print(indentLevel+1, "(else) ");
 }
 
-bool IfStmt::Check(SymbolTable* SymTab){
+bool IfStmt::Check2(SymbolTable* SymTab){
     bool success = true;
-    success = body->Check(SymTab);
-    if(elseBody && !elseBody->Check(SymTab)){
+    if(test->GetType(SymTab) != Type::boolType){
+        ReportError::TestNotBoolean(test);
+        success = false;
+    }
+    if(success){
+        success =  body->Check2(SymTab);
+    }
+    else{
+        body->Check2(SymTab);
+    }
+    
+    if(elseBody && !elseBody->Check2(SymTab)){
         return false;
     }
     return success;
 }
 
-bool IfStmt::Check2(SymbolTable* SymTab){
+bool IfStmt::Check(SymbolTable* SymTab){
     bool success = true;
-    success = body->Check2(SymTab);
-    if(elseBody && !elseBody->Check2(SymTab)){
+  
+    success = body->Check(SymTab);
+    if(elseBody && !elseBody->Check(SymTab)){
         return false;
     }
     return success;

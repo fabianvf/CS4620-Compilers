@@ -177,12 +177,12 @@ void SymbolTable::add_class_scope(){
     class_scopes.insert(cur_scope_level);
 }
 
-bool SymbolTable::find_in_scope(char *x, int scope){
+Decl *SymbolTable::find_in_scope(char *x, int scope){
    int tmp = cur_scope_level;
    cur_scope_level = scope;
-   bool found = (local_lookup(x) != NULL);
+   Decl* d = local_lookup(x);
    cur_scope_level = tmp;
-   return found;
+   return d;
 
 }
 // For debugging. Prints the contents of the symbol table in the form [id] -> [Decl type]
