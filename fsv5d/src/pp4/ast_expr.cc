@@ -223,7 +223,15 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
         Type* bt = base->GetType(SymTab);
         
         if (cDecl == NULL){
-            //ReportError::FieldNotFoundInBase(field, bt);
+            // This bit is for arrays
+            if(dynamic_cast<ArrayType*>(bt) != NULL){
+                VarDecl* av = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
+                if(av == NULL){
+                    ReportError::FieldNotFoundInBase(field, bt);
+                    return Type::errorType;
+                }
+                return av->GetType();
+            }
             return Type::errorType;
         }
         VarDecl* v = dynamic_cast<VarDecl*>(SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex()));
