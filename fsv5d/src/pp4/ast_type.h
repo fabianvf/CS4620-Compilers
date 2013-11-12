@@ -59,6 +59,7 @@ class ArrayType : public Type
 
   public:
     ArrayType(yyltype loc, Type *elemType);
+    ArrayType(const char *str);
     Identifier* GetId();
     char* GetName();    
     const char *GetPrintNameForNode() { return "ArrayType"; }

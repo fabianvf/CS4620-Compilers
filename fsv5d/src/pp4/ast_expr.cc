@@ -160,7 +160,6 @@ Type *AssignExpr::GetType(SymbolTable *SymTab){
         if((dynamic_cast<ArrayType*>(leftType) != NULL) 
             && (dynamic_cast<ArrayType*>(rightType) != NULL) 
             && (dynamic_cast<ArrayType*>(leftType)->GetElemType() == (dynamic_cast<ArrayType*>(leftType)->GetElemType()))){
-            std::cout << "HERE" << std::endl;
             return leftType;
         }
         if((leftType != Type::errorType) && (rightType != Type::errorType)){
@@ -374,8 +373,8 @@ Type *NewArrayExpr::GetType(SymbolTable *SymTab){
         return Type::errorType;
     }
     /// TODO
-    return Type::errorType;
-//    return (new Type(elemType->GetName()));
+//    return Type::errorType;
+    return (new ArrayType(elemType->GetName()));
 
 }
 

@@ -61,6 +61,11 @@ ArrayType::ArrayType(yyltype loc, Type *et) : Type(loc) {
     (elemType=et)->SetParent(this);
 }
 
+ArrayType::ArrayType(const char *n) : Type(n){
+    Assert(n);
+    elemType = new Type(strdup(n));
+}
+
 
 Identifier* ArrayType::GetId(){
     return elemType->GetId();
