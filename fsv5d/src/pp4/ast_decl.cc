@@ -91,8 +91,7 @@ bool ClassDecl::Check(SymbolTable *SymTab){
     return true;
 }
 
-bool ClassDecl::Check2(SymbolTable *SymTab){
-    //TODO: Something regarding inheritance and interfaces goes here
+bool ClassDecl::Check2(SymbolTable *SymTab){ 
     List<int> *add_scopes = new List<int>();
     bool success = true;
 
@@ -105,20 +104,26 @@ bool ClassDecl::Check2(SymbolTable *SymTab){
         else{
             add_scopes->Append(SymTab->lookup(extends->GetId()->GetName())->getScopeIndex());
         }
-//        std::cout << SymTab->lookup(extends->GetId()->GetName())->scopeIndex << std::endl;
     }
 
-    // Adds the scope of inherited classes to the current one
+    // Adds the scope of implemented classes to the current one
     for (int i = 0; i < implements->NumElements(); i++){
         if((!implements->Nth(i)->Check2(SymTab)) || (dynamic_cast<InterfaceDecl*>(SymTab->lookup(implements->Nth(i)->GetName())) == NULL)){
             ReportError::IdentifierNotDeclared(implements->Nth(i)->GetId(), LookingForInterface);
             success = false;
         }
         else{
-            add_scopes->Append(SymTab->lookup(implements->Nth(i)->GetId()->GetName())->getScopeIndex());
-        }
-//        std::cout << SymTab->lookup(implements->Nth(i)->GetId()->GetName())->getScopeIndex() << std::endl;
-   
+            InterfaceDecl* intDecl = dynamic_cast<InterfaceDecl*>(SymTab->lookup(implements->Nth(i)->GetId()->GetName()));
+            add_scopes->Append(intDecl->getScopeIndex());
+            char* name;
+            for(int j= 0; j < intDecl->GetMembers()->NumElements(); j++){
+                name = intDecl->GetMembers()->Nth(j)->GetName();
+                if(SymTab->find_in_scope(name, scopeIndex) == NULL){
+                    ReportError::InterfaceNotImplemented(this, implements->Nth(i));
+                    success = false;
+                }
+            }
+        }   
     }
     
     SymTab->enter_scope();

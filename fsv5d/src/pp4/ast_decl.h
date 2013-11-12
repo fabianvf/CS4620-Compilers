@@ -90,6 +90,7 @@ class InterfaceDecl : public Decl
     bool Check2(SymbolTable *SymbolTable);
     int getScopeIndex(){return scopeIndex;}
     static const int kind= 3;
+    List<Decl*> *GetMembers(){return members;}
 };
 
 class FnDecl : public Decl 
