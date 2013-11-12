@@ -150,6 +150,8 @@ Type *LogicalExpr::GetType(SymbolTable *SymTab){
 bool LogicalExpr::Check2(SymbolTable *SymTab){
     return (this->GetType(SymTab) != Type::errorType);
 }
+
+
 Type *AssignExpr::GetType(SymbolTable *SymTab){
     Type *leftType = left->GetType(SymTab);
     Type *rightType = right->GetType(SymTab); 
@@ -159,7 +161,7 @@ Type *AssignExpr::GetType(SymbolTable *SymTab){
         }
         if((dynamic_cast<ArrayType*>(leftType) != NULL) 
             && (dynamic_cast<ArrayType*>(rightType) != NULL) 
-            && (dynamic_cast<ArrayType*>(leftType)->GetElemType() == (dynamic_cast<ArrayType*>(leftType)->GetElemType()))){
+            && (dynamic_cast<ArrayType*>(leftType)->GetElemType() == (dynamic_cast<ArrayType*>(rightType)->GetElemType()))){
             return leftType;
         }
         if((leftType != Type::errorType) && (rightType != Type::errorType)){
@@ -383,8 +385,7 @@ Type *NewArrayExpr::GetType(SymbolTable *SymTab){
         ReportError::IdentifierNotDeclared(elemType->GetId(), LookingForType);
         return Type::errorType;
     }
-    /// TODO
-//    return Type::errorType;
+    
     return (new ArrayType(elemType->GetName()));
 
 }
