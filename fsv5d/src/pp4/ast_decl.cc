@@ -47,7 +47,8 @@ bool VarDecl::Check2(SymbolTable *SymTab){
     if(!(type->Check2(SymTab)) 
         || ((dynamic_cast<ClassDecl*>(SymTab->lookup(type->GetName())) == NULL) 
         && (dynamic_cast<InterfaceDecl*>(SymTab->lookup(type->GetName())) == NULL))) {
-        ReportError::IdentifierNotDeclared(type->GetId(), LookingForType); 
+        ReportError::IdentifierNotDeclared(type->GetId(), LookingForType);
+        type = Type::errorType; 
         return false;
     }
     return true;

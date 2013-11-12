@@ -218,7 +218,7 @@ FieldAccess::FieldAccess(Expr *b, Identifier *f)
 
 Type *FieldAccess::GetType(SymbolTable *SymTab){ 
     // This bit is for class variables
-    if(base != NULL){
+    if(base != NULL){ 
         ClassDecl *cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName())); 
         Type* bt = base->GetType(SymTab);
         
@@ -242,6 +242,7 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
     // This bit is for normal variables
     VarDecl* d = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
     if(d == NULL){
+        ReportError::IdentifierNotDeclared(field, LookingForVariable);
         return Type::errorType;
     }
     return d->GetType();
@@ -269,12 +270,14 @@ Type *Call::GetType(SymbolTable *SymTab){
     if(base != NULL){
         //Except for this special case of array.length()
         ArrayType *at = dynamic_cast<ArrayType*>(base->GetType(SymTab));
-        if((at != NULL && strcmp(field->GetName(), "length"))){
+        if((at != NULL && (strcmp(field->GetName(), "length") == 0) )){
             return Type::intType;
         }
-        ClassDecl* cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName()));
+            ClassDecl* cDecl = dynamic_cast<ClassDecl*>(SymTab->lookup(base->GetType(SymTab)->GetName()));
         if(cDecl == NULL){
-            ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
+             if(base->GetType(SymTab) != Type::errorType){
+                  ReportError::FieldNotFoundInBase(field, base->GetType(SymTab));
+             }
             return Type::errorType;
         }
         FnDecl *f = dynamic_cast<FnDecl*>(SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex()));
