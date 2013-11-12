@@ -93,9 +93,10 @@ Decl* SymbolTable::lookup(char* x){
 // Returns NULL if the id is not in the current scope.
 Decl* SymbolTable::local_lookup(char* x){
     std::string name(x);
-//    std::cout << cur_scope_level << std::endl;
+    //std::cout << cur_scope_level << std::endl;
     
     if (context[cur_scope_level].size() == 0){
+       // std::cout << "Looking For: " << name << " at level: " << cur_scope_level <<  std::endl;
         return NULL;
     }
     std::map<std::string, Decl*>::iterator it = context[cur_scope_level].find(name);

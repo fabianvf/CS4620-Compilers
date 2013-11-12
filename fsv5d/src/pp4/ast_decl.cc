@@ -179,6 +179,9 @@ bool InterfaceDecl::Check(SymbolTable *SymTab){
 
 bool InterfaceDecl::Check2(SymbolTable *SymTab){
     SymTab->enter_scope();
+    for(int i = 0; i < members->NumElements(); i++){
+        members->Nth(i)->Check2(SymTab);
+    }
     SymTab->exit_scope();
     return true;
 }
@@ -231,14 +234,10 @@ bool FnDecl::Check2(SymbolTable *SymTab){
         success = false;
     }
     SymTab->enter_scope();
-    //std::cout << "In Function " << GetName() << " Formals: ";
     for(int i = 0; i < formals->NumElements(); i++){
-        //std::cout << "\n\t" << SymTab->get_scope_level() << std::endl;
         if(!(formals->Nth(i)->Check2(SymTab))){
             success = false;
         }
-        //std::cout << "\n\t" << SymTab->get_scope_level() << std::endl;
-
     }
     if((body != NULL)&&(!(body->Check2(SymTab)))){
         success = false;

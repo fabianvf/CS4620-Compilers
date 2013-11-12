@@ -224,7 +224,7 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
         Type* bt = base->GetType(SymTab);
         
         if (cDecl == NULL){
-            ReportError::FieldNotFoundInBase(field, bt);
+            //ReportError::FieldNotFoundInBase(field, bt);
             return Type::errorType;
         }
         VarDecl* v = dynamic_cast<VarDecl*>(SymTab->find_in_scope(field->GetName(), cDecl->getScopeIndex()));
@@ -243,7 +243,6 @@ Type *FieldAccess::GetType(SymbolTable *SymTab){
     // This bit is for normal variables
     VarDecl* d = dynamic_cast<VarDecl*>(SymTab->lookup(field->GetName()));
     if(d == NULL){
-        ReportError::IdentifierNotDeclared(field, LookingForVariable);
         return Type::errorType;
     }
     return d->GetType();
