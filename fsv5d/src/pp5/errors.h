@@ -100,9 +100,6 @@ class ReportError
   static void BreakOutsideLoop(BreakStmt *bStmt);
 
 
-    // Errors used by code-generator/linker
-  static void NoMainFound();
-
   // Generic method to report a printf-style error message
   static void Formatted(yyltype *loc, const char *format, ...);
 
@@ -118,9 +115,4 @@ class ReportError
   
 };
 
-  
-// Wording to use for runtime error messages
-static const char *err_arr_out_of_bounds = "Decaf runtime error: Array subscript out of bounds\\n";
-static const char *err_arr_bad_size = "Decaf runtime error: Array size is <= 0\\n";
- 
 #endif

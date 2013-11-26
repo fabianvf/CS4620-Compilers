@@ -4,9 +4,6 @@
  * expressions in the parse tree.  For each expression in the
  * language (add, call, New, etc.) there is a corresponding
  * node class for that construct. 
- *
- * pp5: You will need to extend the Expr classes to implement 
- * code generation for expressions.
  */
 
 
@@ -86,6 +83,7 @@ class Operator : public Node
   public:
     Operator(yyltype loc, const char *tok);
     friend std::ostream& operator<<(std::ostream& out, Operator *o) { return out << o->tokenString; }
+    const char *str() { return tokenString; }
  };
  
 class CompoundExpr : public Expr

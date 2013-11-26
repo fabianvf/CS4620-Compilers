@@ -6,6 +6,8 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include "ast_expr.h"
+#include "scope.h"
+#include "errors.h"
 
 
 Program::Program(List<Decl*> *d) {
@@ -14,19 +16,9 @@ Program::Program(List<Decl*> *d) {
 }
 
 void Program::Check() {
-    /* You can use your pp3 semantic analysis or leave it out if
-     * you want to avoid the clutter.  We won't test pp5 against 
-     * semantically-invalid programs.
-     */
-}
-void Program::Emit() {
-    /* pp5: here is where the code generation is kicked off.
-     *      The general idea is perform a tree traversal of the
-     *      entire program, generating instructions as you go.
-     *      Each node can have its own way of translating itself,
-     *      which makes for a great use of inheritance and
-     *      polymorphism in the node classes.
-     */
+    nodeScope = new Scope();
+    decls->DeclareAll(nodeScope);
+    decls->CheckAll();
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -34,11 +26,21 @@ StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     (decls=d)->SetParentAll(this);
     (stmts=s)->SetParentAll(this);
 }
+void StmtBlock::Check() {
+    nodeScope = new Scope();
+    decls->DeclareAll(nodeScope);
+    decls->CheckAll();
+    stmts->CheckAll();
+}
 
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
     Assert(t != NULL && b != NULL);
     (test=t)->SetParent(this); 
     (body=b)->SetParent(this);
+}
+
+void ConditionalStmt::Check() {
+    body->Check();
 }
 
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) { 
@@ -51,6 +53,10 @@ IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) {
     Assert(t != NULL && tb != NULL); // else can be NULL
     elseBody = eb;
     if (elseBody) elseBody->SetParent(this);
+}
+void IfStmt::Check() {
+    ConditionalStmt::Check();
+    if (elseBody) elseBody->Check();
 }
 
 
