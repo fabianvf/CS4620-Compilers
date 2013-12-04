@@ -22,16 +22,30 @@ void Program::Check() {
 }
 
 void Program::Emit(CodeGenerator *cg){
-//TODO: Linker error (there must be a main function)
+    FnDecl *fdecl;
+    VarDecl *vdecl;
+    // Catch linker error (there must be a main function) before generation starts
+    for(int i = 0; i < decls->NumElements(); i++){
+        fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
+	if(fdecl != NULL){
+	    if(strcmp(fdecl->GetName(), "main")){
+	        break;
+	    }
+	}
+	if(i == decls->NumElements() -1){
+	    ReportError::NoMainFound();
+	    return;
+	}
+    }
     cg->global_offset = 0;
     for(int i = 0; i < decls->NumElements(); i++){
 	// Need to separate global and local variable declarations
-	VarDecl *vdecl = dynamic_cast<VarDecl*>(decls->Nth(i));
+	vdecl = dynamic_cast<VarDecl*>(decls->Nth(i));
 	if(vdecl != NULL){
             vdecl->EmitGlobal(cg);		
 	}
 
-	FnDecl *fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
+	fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
 	if(fdecl != NULL){
 	    fdecl->Emit(cg);
 	}
