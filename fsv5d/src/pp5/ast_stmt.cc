@@ -21,6 +21,25 @@ void Program::Check() {
     decls->CheckAll();
 }
 
+void Program::Emit(CodeGenerator *cg){
+//TODO: Linker error (there must be a main function)
+    cg->global_offset = 0;
+    for(int i = 0; i < decls->NumElements(); i++){
+	// Need to separate global and local variable declarations
+	VarDecl *vdecl = dynamic_cast<VarDecl*>(decls->Nth(i));
+	if(vdecl != NULL){
+            vdecl->EmitGlobal(cg);		
+	}
+
+	FnDecl *fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
+	if(fdecl != NULL){
+	    fdecl->Emit(cg);
+	}
+	//TODO: For now, only looking at global variable declarations and functions
+//	decls->Nth(i)->Emit(cg);
+    }
+    cg->DoFinalCodeGen();
+}
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     Assert(d != NULL && s != NULL);
     (decls=d)->SetParentAll(this);

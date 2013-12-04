@@ -30,7 +30,9 @@ if [ ! -d diff_results/out ]; then
 else
 	rm -rf diff_results/asm/*
 fi
-
+if [! -d decaf_samples ]; then
+	cp samples/*.decaf decaf_samples/
+fi
 pass_counter=0
 fail_counter=0
 for entry in "$1"/*

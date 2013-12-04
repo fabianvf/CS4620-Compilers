@@ -7,8 +7,9 @@
 #include "ast_stmt.h"
 #include "scope.h"
 #include "errors.h"
-        
-         
+
+
+
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
@@ -25,6 +26,35 @@ VarDecl::VarDecl(Identifier *n, Type *t) : Decl(n) {
 }
   
 void VarDecl::Check() { type->Check(); }
+
+// Code generation for local variable declarations
+void VarDecl::Emit(CodeGenerator *cg){
+    // Add the variable size to the current offset
+    int offset = cg->var_offset;
+
+    // This should never happen  
+    if(offset > -8){
+        offset = -8;
+	printf("Error: Local offset was greater than -8!");
+    }
+    offsetLoc = new Location(fpRelative, offset, GetName());
+    cg->var_offset -= cg->VarSize;
+}
+
+// Code generation for global variable declarations
+void VarDecl::EmitGlobal(CodeGenerator *cg){
+    // Add the variable size to the current offset
+    int offset = cg->global_offset;
+
+    // This should never happen
+    if(offset < 0){
+        offset = 0;
+	printf("Error: Global offset was less than 0!");
+    }
+
+    offsetLoc = new Location(fpRelative, offset, GetName());
+    cg->global_offset += cg->VarSize;
+}
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
     // extends can be NULL, impl & mem may be empty lists but cannot be NULL
@@ -145,5 +175,14 @@ bool FnDecl::MatchesPrototype(FnDecl *other) {
     return true;
 }
 
+void FnDecl::Emit(CodeGenerator *cg){
+//TODO
+//Need to get the label for the function into TAC
+cg->GenLabel(GetName());
 
+//Generate begin func statement (including getting location and getting correct size
+BeginFunc *beginFunc = cg->GenBeginFunc(); 
+// TODO Interesting stuff goes here
+cg->GenEndFunc();
+}
 

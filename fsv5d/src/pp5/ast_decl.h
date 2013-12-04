@@ -11,6 +11,7 @@
 
 #include "ast.h"
 #include "list.h"
+#include "codegen.h"
 
 class Type;
 class NamedType;
@@ -47,6 +48,8 @@ class VarDecl : public Decl
   public:
     VarDecl(Identifier *name, Type *type);
     void Check();
+    void Emit(CodeGenerator *cg);
+    void EmitGlobal(CodeGenerator *cg);
     Type *GetDeclaredType() { return type; }
 };
 
@@ -94,6 +97,7 @@ class FnDecl : public Decl
     bool IsMethodDecl();
     bool ConflictsWithPrevious(Decl *prev);
     bool MatchesPrototype(FnDecl *other);
+    void Emit(CodeGenerator *cg);
 };
 
 #endif

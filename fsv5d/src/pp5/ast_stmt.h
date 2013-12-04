@@ -12,6 +12,7 @@
 
 #include "list.h"
 #include "ast.h"
+#include "codegen.h"
 
 class Decl;
 class VarDecl;
@@ -25,6 +26,7 @@ class Program : public Node
   public:
      Program(List<Decl*> *declList);
      void Check();
+     void Emit(CodeGenerator *cg);
 };
 
 class Stmt : public Node

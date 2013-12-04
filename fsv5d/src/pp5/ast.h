@@ -26,12 +26,12 @@
 
 #include <stdlib.h>   // for NULL
 #include "location.h"
+#include "codegen.h"
 #include <iostream>
 class Scope;
 class Decl;
 class Identifier;
 class Type;
-
 class Node 
 {
   protected:
@@ -42,15 +42,18 @@ class Node
   public:
     Node(yyltype loc);
     Node();
-    
+        
     yyltype *GetLocation()   { return location; }
     void SetParent(Node *p)  { parent = p; }
     Node *GetParent()        { return parent; }
     virtual void Check() {} // not abstract, since some nodes have nothing to do
+    virtual void Emit(CodeGenerator *cg){}
     
     typedef enum { kShallow, kDeep } lookup;
     virtual Decl *FindDecl(Identifier *id, lookup l = kDeep);
     virtual Scope *PrepareScope() { return NULL; }
+
+    Location* offsetLoc;
 };
    
 

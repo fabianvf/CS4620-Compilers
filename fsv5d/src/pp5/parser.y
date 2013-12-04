@@ -8,7 +8,7 @@
 #include "scanner.h" // for yylex
 #include "parser.h"
 #include "errors.h"
-
+#include "codegen.h"
 void yyerror(const char *msg); // standard error-handling routine
 
 %}
@@ -100,7 +100,8 @@ Program   :    DeclList            {
                                       Program *program = new Program($1);
                                       // if no errors, advance to next phase
                                       if (ReportError::NumErrors() == 0) 
-                                          program->Check(); 
+                                          program->Check();
+					  program->Emit(new CodeGenerator()); 
                                     }
           ;
 
