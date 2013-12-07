@@ -1,16 +1,17 @@
+bool d;
+
 void main(){
     int c;
     int i;
     string s;
     bool b;
-    i = 1;
-    b = i == 1;
-    Print(b);
-    b = i != 1;
-    Print(b);
+
+    i = 1; 
     s = "hello";
     c = 1 + 2 * 3 / -1;
     b = c < 10;
+    b = b && (c > 10);
+    d = b && !b;
      
     Print(s, c, b, "what?");
 }

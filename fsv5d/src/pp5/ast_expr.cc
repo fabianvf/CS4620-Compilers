@@ -190,5 +190,23 @@ void EqualityExpr::Emit(CodeGenerator *cg){
 }
 
 void LogicalExpr::Emit(CodeGenerator *cg){
+// Logical ops available in tac file : "&&" "||"
+    std::string opName = std::string(op->str());
+    if(left != NULL) left->Emit(cg);
+    right->Emit(cg);
 
+    if (left != NULL) {// Everything but unary NOT is already defined
+	if(opName == "&&"){
+	   offsetLoc = cg->GenBinaryOp("&&", left->offsetLoc, right->offsetLoc);
+	}
+	else if (opName == "||"){
+	    offsetLoc = cg->GenBinaryOp("||", left->offsetLoc, right->offsetLoc);
+	}
+    }
+    else{
+	// ! true ~> true == false (false) ; ! false ~> false == false (true)
+	if(opName == "!"){
+	    offsetLoc = cg->GenBinaryOp("==", right->offsetLoc, cg->GenLoadConstant(0));
+	}
+    }
 }
