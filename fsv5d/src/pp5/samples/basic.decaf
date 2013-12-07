@@ -1,0 +1,9 @@
+void main(){
+    int c;
+    string s;
+    bool b;
+
+    s = "hello";
+    c = 1;
+    b = true;
+}

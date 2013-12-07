@@ -114,6 +114,9 @@ void FieldAccess::Emit(CodeGenerator *cg){
 	//TODO: Class stuff goes here eventually
     }
     offsetLoc = FindDecl(field)->offsetLoc;
+    if(offsetLoc == NULL){
+	    printf("FieldAccess broken");
+    }
 }
 
 void AssignExpr::Emit(CodeGenerator *cg){
@@ -121,6 +124,6 @@ void AssignExpr::Emit(CodeGenerator *cg){
     // and then by assigning the value in the right location to the left location
     left->Emit(cg);
     right->Emit(cg);
-    cg->GenAssign(offsetLoc, right->offsetLoc);
+    cg->GenAssign(left->offsetLoc, right->offsetLoc);
 }
        
