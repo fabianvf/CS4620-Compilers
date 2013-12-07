@@ -41,8 +41,8 @@ void Program::Emit(CodeGenerator *cg){
 	if(fdecl != NULL){
 	    fdecl->Emit(cg);
 	}
-	//TODO: For now, only looking at global variable declarations and functions
-//	decls->Nth(i)->Emit(cg);
+	//TODO: For now, ignore classes and (forever) interfaces
+	//	decls->Nth(i)->Emit(cg);
     }
     cg->DoFinalCodeGen();
 }
@@ -87,7 +87,31 @@ void IfStmt::Check() {
     if (elseBody) elseBody->Check();
 }
 
+void IfStmt::Emit(CodeGenerator *cg) {
+    // Steps for if functions: 
+    //  * Emit code for test (as it is always executed)
+    //  * Generate a label for the for the end of the if statement (if there is an else block, this points to it)
+    //  * Generate the IfZ statement, using the location from test->Emit() and the label to the skip the body
+    //  * Generate the body of the if statement
+    //  * Generate a goto statement fo possibility
+    char* elseLabel;
+    test->Emit(cg);
+    char* falseLabel = cg->NewLabel();
+    cg->GenIfZ(test->offsetLoc, falseLabel);
+    body->Emit(cg);
+    if(elseBody != NULL){
+        elseLabel = cg->NewLabel();
+	cg->GenGoto(elseLabel);
+    }
+    cg->GenLabel(falseLabel);
+    if(elseBody != NULL){
+	elseBody->Emit(cg);
+	cg->GenLabel(elseLabel);
+    }
+    
+    
 
+}
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
     Assert(e != NULL);
     (expr=e)->SetParent(this);
