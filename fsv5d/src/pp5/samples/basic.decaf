@@ -12,6 +12,7 @@ void main(){
     b = c < 10;
     b = b && (c > 10);
     d = b && !b;
-     
-    Print(s, c, b, "what?");
+    d = "hello" == s;
+    Print(s);
+    Print(d);
 }

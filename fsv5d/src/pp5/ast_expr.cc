@@ -174,17 +174,29 @@ void RelationalExpr::Emit(CodeGenerator *cg){
 
 void EqualityExpr::Emit(CodeGenerator *cg){
 // Equality ops available in tac file : "=="
+// String equality needs to be deep (not pointer level)
     std::string opName = std::string(op->str());
     left->Emit(cg);
     right->Emit(cg);
     // uses "==", only defined equality operator
     if(opName == "=="){
-	offsetLoc = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	if(left->GetType() == Type::stringType){
+            offsetLoc = cg->GenBuiltInCall(StringEqual, left->offsetLoc, right->offsetLoc);
+	}
+	else{
+	    offsetLoc = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	}
     }
     // 1 != 2 is equivalent to (1 == 2) == false (0)
     else if(opName == "!="){
-	Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
-	offsetLoc = cg->GenBinaryOp("==", eq, cg->GenLoadConstant(0));	
+	if(left->GetType() == Type::stringType){
+	    Location* eq = cg->GenBuiltInCall(StringEqual, left->offsetLoc, right->offsetLoc);
+	    offsetLoc = cg->GenBinaryOp("==", eq, cg->GenLoadConstant(0));
+	}
+	else{
+	    Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	    offsetLoc = cg->GenBinaryOp("==", eq, cg->GenLoadConstant(0));	
+	}
     }
 
 }
