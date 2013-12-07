@@ -98,4 +98,17 @@ PrintStmt::PrintStmt(List<Expr*> *a) {
     (args=a)->SetParentAll(this);
 }
 
-
+void PrintStmt::Emit(CodeGenerator *cg){
+    BuiltIn b;
+    Type *t;
+    for(int i = 0; i < args->NumElements(); i++){
+	args->Nth(i)->Emit(cg);
+	if(args->Nth(i)->GetType() == Type::stringType){ t = Type::stringType; b = PrintString; }
+	else if(args->Nth(i)->GetType() == Type::intType) { t = Type::intType; b = PrintInt; }
+	else if(args->Nth(i)->GetType() == Type::boolType) {  t = Type::boolType; b = PrintBool; }
+	else{ t = Type::errorType; }
+	if(t != Type::errorType){
+            cg->GenBuiltInCall(b, args->Nth(i)->offsetLoc);	
+	}
+    }
+}

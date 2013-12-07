@@ -12,7 +12,7 @@
 #include "ast.h"
 #include "list.h"
 #include "codegen.h"
-
+#include "ast_type.h"
 class Type;
 class NamedType;
 class Identifier;
@@ -38,6 +38,8 @@ class Decl : public Node
     virtual bool IsInterfaceDecl() { return false; }
     virtual bool IsFnDecl() { return false; } 
     virtual bool IsMethodDecl() { return false; }
+
+    virtual Type *GetType() { return Type::errorType; }
 };
 
 class VarDecl : public Decl 
@@ -52,6 +54,7 @@ class VarDecl : public Decl
     void EmitGlobal(CodeGenerator *cg);
     void EmitFormal(CodeGenerator *cg);
     Type *GetDeclaredType() { return type; }
+    Type *GetType() { return type; }
 };
 
 class ClassDecl : public Decl 
@@ -99,6 +102,7 @@ class FnDecl : public Decl
     bool ConflictsWithPrevious(Decl *prev);
     bool MatchesPrototype(FnDecl *other);
     void Emit(CodeGenerator *cg);
+    Type *GetType(){ return returnType; }
 };
 
 #endif

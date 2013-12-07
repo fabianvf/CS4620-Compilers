@@ -124,6 +124,9 @@ void AssignExpr::Emit(CodeGenerator *cg){
     // and then by assigning the value in the right location to the left location
     left->Emit(cg);
     right->Emit(cg);
-    cg->GenAssign(left->offsetLoc, right->offsetLoc);
+    
+    if((left->offsetLoc != NULL) && (right->offsetLoc != NULL)){
+        cg->GenAssign(left->offsetLoc, right->offsetLoc);
+    }
 }
        

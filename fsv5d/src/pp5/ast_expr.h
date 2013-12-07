@@ -14,7 +14,8 @@
 #include "ast_stmt.h"
 #include "list.h"
 #include "codegen.h"
-
+#include "ast_type.h"
+#include "ast_decl.h"
 class NamedType; // for new
 class Type; // for NewArray
 
@@ -24,6 +25,7 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
+    virtual Type *GetType() { return Type::errorType ;}
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -42,6 +44,7 @@ class IntConstant : public Expr
   public:
     IntConstant(yyltype loc, int val);
     void Emit(CodeGenerator *cg);
+    Type *GetType() { return Type::intType; }
 };
 
 class DoubleConstant : public Expr 
@@ -62,6 +65,7 @@ class BoolConstant : public Expr
   public:
     BoolConstant(yyltype loc, bool val);
     void Emit(CodeGenerator *cg);
+    Type *GetType() { return Type::boolType; }
 };
 
 class StringConstant : public Expr 
@@ -72,6 +76,7 @@ class StringConstant : public Expr
   public:
     StringConstant(yyltype loc, const char *val);
     void Emit(CodeGenerator *cg);
+    Type *GetType() { return Type::stringType; }
 };
 
 class NullConstant: public Expr 
@@ -108,12 +113,14 @@ class ArithmeticExpr : public CompoundExpr
   public:
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
+    Type* GetType() { return Type::intType; }
 };
 
 class RelationalExpr : public CompoundExpr 
 {
   public:
     RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
+    Type *GetType() { return Type::boolType; }
 };
 
 class EqualityExpr : public CompoundExpr 
@@ -121,6 +128,7 @@ class EqualityExpr : public CompoundExpr
   public:
     EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
+    Type *GetType() { return Type::boolType; }
 };
 
 class LogicalExpr : public CompoundExpr 
@@ -129,6 +137,7 @@ class LogicalExpr : public CompoundExpr
     LogicalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
+    Type *GetType() { return Type::boolType; }
 };
 
 class AssignExpr : public CompoundExpr 
@@ -158,6 +167,7 @@ class ArrayAccess : public LValue
     
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
+    Type *GetType() { return base->GetType(); }
 };
 
 /* Note that field access is used both for qualified names
@@ -174,6 +184,7 @@ class FieldAccess : public LValue
   public:
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     void Emit(CodeGenerator *cg);
+    Type *GetType() { return FindDecl(field)->GetType(); }
 };
 
 /* Like field access, call is used both for qualified base.field()
@@ -189,6 +200,7 @@ class Call : public Expr
     
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
+    Type *GetType() { return FindDecl(field)->GetType(); }
 };
 
 class NewExpr : public Expr

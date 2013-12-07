@@ -6,4 +6,5 @@ void main(){
     s = "hello";
     c = 1;
     b = true;
+    Print(s, c, b, "what?");
 }

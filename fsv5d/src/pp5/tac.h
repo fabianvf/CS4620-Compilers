@@ -47,7 +47,6 @@ class Location
 	  
   public:
     Location(Segment seg, int offset, const char *name);
-
     const char *GetName() const     { return variableName; }
     Segment GetSegment() const      { return segment; }
     int GetOffset() const           { return offset; }

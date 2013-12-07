@@ -190,26 +190,28 @@ bool FnDecl::MatchesPrototype(FnDecl *other) {
 
 void FnDecl::Emit(CodeGenerator *cg){
 //TODO: Deal with offset (resets when entering functions, but returns to original value after exit, maybe
-cg->var_offset = -8;
+cg->var_offset = cg->OffsetToFirstLocal;
 
 cg->GenLabel(GetName());
-printf(GetName());
+//printf(GetName());
 
 //Generate begin func statement (including getting location and getting correct size
 BeginFunc *beginFunc = cg->GenBeginFunc(); 
 
 // Formals
 if(formals != NULL){
-    cg->formal_offset = 4;
+    cg->formal_offset = cg->OffsetToFirstParam;
     for (int i = 0; i < formals->NumElements(); i++){
 	formals->Nth(i)->EmitFormal(cg);
     }
 }
 
-// Body TODO: Backpatch size into beginfunc
+// Body 
 if (body != NULL){
     body->Emit(cg);
 }
+// Backpatch size into begin func statement
+beginFunc->SetFrameSize(-1 * (cg->var_offset - cg->OffsetToFirstLocal));
 cg->GenEndFunc();
 }
 
