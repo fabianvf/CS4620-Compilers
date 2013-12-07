@@ -96,18 +96,19 @@ ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) {
 }
 
 void ForStmt::Emit(CodeGenerator *cg){
-// For statements just specialized while statements...
-// for (int i = 0; i < x; i = i + 1){
-//      // Do Something
-// }
+// For statements just specialized while statements
+//
+//     for (int i = 0; i < x; i = i + 1){
+//          // Do Something
+//     }
 //
 // Is equavalent to: 
 //
-// int i = 0;
-// while (i < x){
-//     // Do Something
-//     i = i + 1;
-// }
+//     int i = 0;
+//     while (i < x){
+//         // Do Something
+//         i = i + 1;
+//     }
     char* beginFor = cg->NewLabel();
     char* endFor = cg->NewLabel();
     init->Emit(cg);
@@ -119,6 +120,8 @@ void ForStmt::Emit(CodeGenerator *cg){
     cg->GenGoto(beginFor);
     cg->GenLabel(endFor);
 }
+
+
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
     Assert(t != NULL && tb != NULL); // else can be NULL
     elseBody = eb;
@@ -157,6 +160,18 @@ void IfStmt::Emit(CodeGenerator *cg) {
 ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) { 
     Assert(e != NULL);
     (expr=e)->SetParent(this);
+}
+
+void ReturnStmt::Emit(CodeGenerator *cg){
+    // Nice and easy one...
+    expr->Emit(cg);
+    cg->GenReturn(expr->offsetLoc);
+}
+
+void BreakStmt::Emit(CodeGenerator *cg){
+    // TODO
+    // Trickier... Have to find parent loop statement and find the label you want to skip to...
+    // Recursive ascent is simple, but break label may have to be a class variable for loops?
 }
   
 PrintStmt::PrintStmt(List<Expr*> *a) {    

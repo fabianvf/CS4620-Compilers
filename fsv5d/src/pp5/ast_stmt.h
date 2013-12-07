@@ -99,6 +99,7 @@ class BreakStmt : public Stmt
 {
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
+    void Emit(CodeGenerator *cg);
 };
 
 class ReturnStmt : public Stmt  
@@ -108,6 +109,7 @@ class ReturnStmt : public Stmt
   
   public:
     ReturnStmt(yyltype loc, Expr *expr);
+    void Emit(CodeGenerator *cg);
 };
 
 class PrintStmt : public Stmt
