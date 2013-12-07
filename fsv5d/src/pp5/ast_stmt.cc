@@ -71,12 +71,54 @@ void ConditionalStmt::Check() {
     body->Check();
 }
 
+void WhileStmt::Emit(CodeGenerator *cg){
+   // Steps for while stmt:
+   // * Generate label for beginning of while
+   // * generate test condition
+   // * generate if stmt for ending the while loop
+   // * generate body
+   // * generate goto to beginning of while loop
+   
+   char* beginWhile = cg->NewLabel();
+   char* endWhile = cg->NewLabel();
+   cg->GenLabel(beginWhile);
+   test->Emit(cg);
+   cg->GenIfZ(test->offsetLoc, endWhile);
+   body->Emit(cg);
+   cg->GenGoto(beginWhile);
+   cg->GenLabel(endWhile);
+}
+
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) { 
     Assert(i != NULL && t != NULL && s != NULL && b != NULL);
     (init=i)->SetParent(this);
     (step=s)->SetParent(this);
 }
 
+void ForStmt::Emit(CodeGenerator *cg){
+// For statements just specialized while statements...
+// for (int i = 0; i < x; i = i + 1){
+//      // Do Something
+// }
+//
+// Is equavalent to: 
+//
+// int i = 0;
+// while (i < x){
+//     // Do Something
+//     i = i + 1;
+// }
+    char* beginFor = cg->NewLabel();
+    char* endFor = cg->NewLabel();
+    init->Emit(cg);
+    cg->GenLabel(beginFor);
+    test->Emit(cg);
+    cg->GenIfZ(test->offsetLoc, endFor);
+    body->Emit(cg);
+    step->Emit(cg);
+    cg->GenGoto(beginFor);
+    cg->GenLabel(endFor);
+}
 IfStmt::IfStmt(Expr *t, Stmt *tb, Stmt *eb): ConditionalStmt(t, tb) { 
     Assert(t != NULL && tb != NULL); // else can be NULL
     elseBody = eb;

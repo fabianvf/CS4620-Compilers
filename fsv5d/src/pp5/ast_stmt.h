@@ -74,12 +74,14 @@ class ForStmt : public LoopStmt
   
   public:
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
+    void Emit(CodeGenerator *cg);
 };
 
 class WhileStmt : public LoopStmt 
 {
   public:
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
+    void Emit(CodeGenerator *cg);
 };
 
 class IfStmt : public ConditionalStmt 
