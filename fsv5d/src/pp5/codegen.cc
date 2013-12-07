@@ -35,6 +35,8 @@ Location *CodeGenerator::GenTempVar()
      in stack frame for use as temporary. Until you
      do that, the assert below will always fail to remind
      you this needs to be implemented  */
+  result = new Location(fpRelative, var_offset, temp);
+  var_offset -= VarSize;
   Assert(result != NULL);
   return result;
 }

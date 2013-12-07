@@ -29,12 +29,13 @@ void VarDecl::Check() { type->Check(); }
 
 // Code generation for local variable declarations
 void VarDecl::Emit(CodeGenerator *cg){
+    //printf(GetName());
     // Add the variable size to the current offset
     int offset = cg->var_offset;
 
     // This should never happen  
-    if(offset > -8){
-        offset = -8;
+    if(offset > cg->OffsetToFirstLocal){
+        offset = cg->OffsetToFirstLocal;
 	printf("Error: Local offset was greater than -8!");
     }
     offsetLoc = new Location(fpRelative, offset, GetName());
@@ -47,13 +48,25 @@ void VarDecl::EmitGlobal(CodeGenerator *cg){
     int offset = cg->global_offset;
 
     // This should never happen
-    if(offset < 0){
-        offset = 0;
+    if(offset < cg->OffsetToFirstGlobal){
+        offset = cg->OffsetToFirstGlobal;
 	printf("Error: Global offset was less than 0!");
     }
 
     offsetLoc = new Location(fpRelative, offset, GetName());
     cg->global_offset += cg->VarSize;
+}
+
+void VarDecl::EmitFormal(CodeGenerator *cg){	
+    //printf(GetName());
+    int offset = cg->formal_offset;
+    // This should never happen
+    if(offset < cg->OffsetToFirstParam){
+        offset = cg->OffsetToFirstParam;
+	printf("Error: Formal offset was less than +4!");
+    }
+    offsetLoc = new Location(fpRelative, offset, GetName());
+    cg->formal_offset += cg->VarSize;
 }
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
@@ -176,13 +189,27 @@ bool FnDecl::MatchesPrototype(FnDecl *other) {
 }
 
 void FnDecl::Emit(CodeGenerator *cg){
-//TODO
-//Need to get the label for the function into TAC
+//TODO: Deal with offset (resets when entering functions, but returns to original value after exit, maybe
+cg->var_offset = -8;
+
 cg->GenLabel(GetName());
+printf(GetName());
 
 //Generate begin func statement (including getting location and getting correct size
 BeginFunc *beginFunc = cg->GenBeginFunc(); 
-// TODO Interesting stuff goes here
+
+// Formals
+if(formals != NULL){
+    cg->formal_offset = 4;
+    for (int i = 0; i < formals->NumElements(); i++){
+	formals->Nth(i)->EmitFormal(cg);
+    }
+}
+
+// Body TODO: Backpatch size into beginfunc
+if (body != NULL){
+    body->Emit(cg);
+}
 cg->GenEndFunc();
 }
 

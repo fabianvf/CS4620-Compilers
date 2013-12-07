@@ -20,6 +20,7 @@ class Scope {
   public:
     Scope();
     Decl *Lookup(Identifier *id);
+    Decl *Lookup(char *id);
     bool Declare(Decl *dec);
     void CopyFromScope(Scope *other, ClassDecl *cd);
 };

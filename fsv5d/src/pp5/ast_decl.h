@@ -50,6 +50,7 @@ class VarDecl : public Decl
     void Check();
     void Emit(CodeGenerator *cg);
     void EmitGlobal(CodeGenerator *cg);
+    void EmitFormal(CodeGenerator *cg);
     Type *GetDeclaredType() { return type; }
 };
 

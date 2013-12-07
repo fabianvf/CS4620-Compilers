@@ -25,18 +25,10 @@ void Program::Emit(CodeGenerator *cg){
     FnDecl *fdecl;
     VarDecl *vdecl;
     // Catch linker error (there must be a main function) before generation starts
-    for(int i = 0; i < decls->NumElements(); i++){
-        fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
-	if(fdecl != NULL){
-	    if(strcmp(fdecl->GetName(), "main")){
-	        break;
-	    }
-	}
-	if(i == decls->NumElements() -1){
+    fdecl = dynamic_cast<FnDecl*>(nodeScope->Lookup("main"));
+    if(fdecl == NULL){
 	    ReportError::NoMainFound();
-	    return;
-	}
-    }
+    }    
     cg->global_offset = 0;
     for(int i = 0; i < decls->NumElements(); i++){
 	// Need to separate global and local variable declarations
@@ -65,7 +57,10 @@ void StmtBlock::Check() {
     decls->CheckAll();
     stmts->CheckAll();
 }
-
+void StmtBlock::Emit(CodeGenerator *cg){
+   decls->EmitAll(cg);
+   stmts->EmitAll(cg);
+}
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
     Assert(t != NULL && b != NULL);
     (test=t)->SetParent(this); 

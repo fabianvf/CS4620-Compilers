@@ -82,4 +82,45 @@ NewArrayExpr::NewArrayExpr(yyltype loc, Expr *sz, Type *et) : Expr(loc) {
     (elemType=et)->SetParent(this);
 }
 
+/*
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+   +                         PP5 Emit() implementations below                         + 
+   ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+*/
+
+void IntConstant::Emit(CodeGenerator *cg){
+    offsetLoc = cg->GenLoadConstant(value);
+}
+
+void StringConstant::Emit(CodeGenerator *cg){
+    offsetLoc = cg->GenLoadConstant(value);
+}
+
+void BoolConstant::Emit(CodeGenerator *cg){
+    if(value){
+        offsetLoc = cg->GenLoadConstant(1);
+    }
+    else{
+        offsetLoc = cg->GenLoadConstant(0);
+    }
+}
+
+void NullConstant::Emit(CodeGenerator *cg){
+    offsetLoc = cg->GenLoadConstant(0);
+}
+
+void FieldAccess::Emit(CodeGenerator *cg){
+    if (base != NULL){
+	//TODO: Class stuff goes here eventually
+    }
+    offsetLoc = FindDecl(field)->offsetLoc;
+}
+
+void AssignExpr::Emit(CodeGenerator *cg){
+    // Generate assignment, by first evaluating the left and right (to get the address)
+    // and then by assigning the value in the right location to the left location
+    left->Emit(cg);
+    right->Emit(cg);
+    cg->GenAssign(offsetLoc, right->offsetLoc);
+}
        

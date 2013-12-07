@@ -31,8 +31,10 @@
 #include <deque>
 #include "utility.h"  // for Assert()
 #include "scope.h"
+//#include "codegen.h"
   
 class Node;
+class CodeGenerator;
 
 template<class Element> class List {
 
@@ -84,6 +86,12 @@ template<class Element> class List {
    void CheckAll()
         { for (int i = 0; i < NumElements(); i++)
              Nth(i)->Check(); }
+
+   void EmitAll(CodeGenerator *cg){
+       for(int i = 0; i < NumElements(); i++){
+           Nth(i)->Emit(cg);
+       }
+   }
 
 };
 

@@ -13,6 +13,7 @@
 #include "ast.h"
 #include "ast_stmt.h"
 #include "list.h"
+#include "codegen.h"
 
 class NamedType; // for new
 class Type; // for NewArray
@@ -40,6 +41,7 @@ class IntConstant : public Expr
   
   public:
     IntConstant(yyltype loc, int val);
+    void Emit(CodeGenerator *cg);
 };
 
 class DoubleConstant : public Expr 
@@ -49,6 +51,7 @@ class DoubleConstant : public Expr
     
   public:
     DoubleConstant(yyltype loc, double val);
+//    void Emit(CodeGenerator *cg)
 };
 
 class BoolConstant : public Expr 
@@ -58,6 +61,7 @@ class BoolConstant : public Expr
     
   public:
     BoolConstant(yyltype loc, bool val);
+    void Emit(CodeGenerator *cg);
 };
 
 class StringConstant : public Expr 
@@ -67,12 +71,14 @@ class StringConstant : public Expr
     
   public:
     StringConstant(yyltype loc, const char *val);
+    void Emit(CodeGenerator *cg);
 };
 
 class NullConstant: public Expr 
 {
   public: 
     NullConstant(yyltype loc) : Expr(loc) {}
+    void Emit(CodeGenerator *cg);
 };
 
 class Operator : public Node 
@@ -130,6 +136,7 @@ class AssignExpr : public CompoundExpr
   public:
     AssignExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "AssignExpr"; }
+    void Emit(CodeGenerator *cg);
 };
 
 class LValue : public Expr 
@@ -166,6 +173,7 @@ class FieldAccess : public LValue
     
   public:
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
+    void Emit(CodeGenerator *cg);
 };
 
 /* Like field access, call is used both for qualified base.field()

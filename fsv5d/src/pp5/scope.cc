@@ -25,7 +25,10 @@ Decl *Scope::Lookup(Identifier *id)
 {
     return table->Lookup(id->GetName());
 }
-
+Decl *Scope::Lookup(char *id)       
+{
+    return table->Lookup(id);
+}
 
 /* Method: Declare
  * ---------------

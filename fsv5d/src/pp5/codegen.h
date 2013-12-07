@@ -44,6 +44,7 @@ class CodeGenerator {
     static const int VarSize = 4;
     int var_offset;
     int global_offset;
+    int formal_offset;
 
     static Location* ThisPtr;
 
