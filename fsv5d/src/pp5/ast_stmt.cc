@@ -81,6 +81,8 @@ void WhileStmt::Emit(CodeGenerator *cg){
    
    char* beginWhile = cg->NewLabel();
    char* endWhile = cg->NewLabel();
+   breakLabel = endWhile;
+
    cg->GenLabel(beginWhile);
    test->Emit(cg);
    cg->GenIfZ(test->offsetLoc, endWhile);
@@ -111,6 +113,8 @@ void ForStmt::Emit(CodeGenerator *cg){
 //     }
     char* beginFor = cg->NewLabel();
     char* endFor = cg->NewLabel();
+    breakLabel = endFor;
+
     init->Emit(cg);
     cg->GenLabel(beginFor);
     test->Emit(cg);
@@ -172,6 +176,17 @@ void BreakStmt::Emit(CodeGenerator *cg){
     // TODO
     // Trickier... Have to find parent loop statement and find the label you want to skip to...
     // Recursive ascent is simple, but break label may have to be a class variable for loops?
+    Node *n = this;
+    while(dynamic_cast<Program*>(n) == NULL){
+	if(dynamic_cast<LoopStmt*>(n) != NULL){
+	    // Now I am inside my parent loop...
+	    // So how do I get the label to goto?
+	    LoopStmt *ls = dynamic_cast<LoopStmt*>(n);
+	    cg->GenGoto(ls->breakLabel);
+	    return;
+	}
+	n = n->GetParent();
+    }
 }
   
 PrintStmt::PrintStmt(List<Expr*> *a) {    

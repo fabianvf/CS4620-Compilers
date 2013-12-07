@@ -65,6 +65,7 @@ class LoopStmt : public ConditionalStmt
   public:
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
+    char* breakLabel;
 };
 
 class ForStmt : public LoopStmt 
