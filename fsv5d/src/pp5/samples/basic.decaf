@@ -4,7 +4,11 @@ void main(){
     bool b;
 
     s = "hello";
-    c = 1;
-    b = true;
+    c = 1 + 2 * 3 / -1;
+    b = c < 10;
+    c < 2;
+    c > 3;
+    c <= 4;
+    c >= 5;
     Print(s, c, b, "what?");
 }

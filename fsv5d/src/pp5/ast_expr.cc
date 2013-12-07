@@ -129,4 +129,53 @@ void AssignExpr::Emit(CodeGenerator *cg){
         cg->GenAssign(left->offsetLoc, right->offsetLoc);
     }
 }
-       
+
+void ArithmeticExpr::Emit(CodeGenerator *cg){
+    if(left != NULL) left->Emit(cg);
+    right->Emit(cg);
+    if( left != NULL ){ // Binary operators (everything but unary -)
+	offsetLoc = cg->GenBinaryOp(op->str(), left->offsetLoc, right->offsetLoc);
+    }
+    else{
+	offsetLoc = cg->GenBinaryOp(op->str(), cg->GenLoadConstant(0), right->offsetLoc);
+    }
+}
+
+void RelationalExpr::Emit(CodeGenerator *cg){
+// Relational ops availabe in tac file : <
+// Well that's a bit limiting isn't it...
+    std::string opName = std::string(op->str());
+    //printf(opName.c_str());
+    left->Emit(cg);
+    right->Emit(cg);
+
+    // Uses "<", only defined relational symbol
+    if(opName == "<") {
+        offsetLoc = cg->GenBinaryOp(op->str(), left->offsetLoc, right->offsetLoc);
+    }
+
+    // 2 > 1 is equivalent to 1 < 2
+    else if(opName == ">") {
+	offsetLoc = cg->GenBinaryOp("<", right->offsetLoc, left->offsetLoc);
+    }
+    // 1 <= 2 is equivalent to (1 < 2) || (1 == 2), so this is a three step process
+    else if (opName == "<=") {
+	 Location* lt = cg->GenBinaryOp("<", left->offsetLoc, right->offsetLoc);
+	 Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	 offsetLoc = cg->GenBinaryOp("||", lt, eq);
+    }
+    // 2 >= 1 ~> 1 <= 2 ~> (1 < 2) || (1 == 2), so this is a three step process as well
+    else if (opName == ">="){
+        Location* gt = cg->GenBinaryOp("<", right->offsetLoc, left->offsetLoc);
+        Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	offsetLoc = cg->GenBinaryOp("||", gt, eq);
+    }
+}
+
+void EqualityExpr::Emit(CodeGenerator *cg){
+
+}
+
+void LogicalExpr::Emit(CodeGenerator *cg){
+
+}

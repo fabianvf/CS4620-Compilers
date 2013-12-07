@@ -114,6 +114,7 @@ class ArithmeticExpr : public CompoundExpr
     ArithmeticExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     ArithmeticExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     Type* GetType() { return Type::intType; }
+    void Emit(CodeGenerator *cg);
 };
 
 class RelationalExpr : public CompoundExpr 
@@ -121,6 +122,7 @@ class RelationalExpr : public CompoundExpr
   public:
     RelationalExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     Type *GetType() { return Type::boolType; }
+    void Emit(CodeGenerator *cg);
 };
 
 class EqualityExpr : public CompoundExpr 
@@ -129,6 +131,7 @@ class EqualityExpr : public CompoundExpr
     EqualityExpr(Expr *lhs, Operator *op, Expr *rhs) : CompoundExpr(lhs,op,rhs) {}
     const char *GetPrintNameForNode() { return "EqualityExpr"; }
     Type *GetType() { return Type::boolType; }
+    void Emit(CodeGenerator *cg);
 };
 
 class LogicalExpr : public CompoundExpr 
@@ -138,6 +141,7 @@ class LogicalExpr : public CompoundExpr
     LogicalExpr(Operator *op, Expr *rhs) : CompoundExpr(op,rhs) {}
     const char *GetPrintNameForNode() { return "LogicalExpr"; }
     Type *GetType() { return Type::boolType; }
+    void Emit(CodeGenerator *cg);
 };
 
 class AssignExpr : public CompoundExpr 
