@@ -122,7 +122,13 @@ Scope *ClassDecl::PrepareScope()
     return nodeScope;
 }
 
-
+void ClassDecl::Emit(CodeGenerator *cg){
+    //TODO
+    // Steps for declaring class:
+    //  * Store global class variables at correct offsets from class
+    //  * Store function declarations correctly in Vtable...
+    members->EmitAll(cg);
+}
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {
     Assert(n != NULL && m != NULL);
@@ -199,7 +205,8 @@ void FnDecl::Emit(CodeGenerator *cg){
         cg->GenLabel(fnName.c_str());
     } 
     else if(IsMethodDecl()){
-    	//TODO Need to prepend underscore + class name, plus class stuff
+    	ClassDecl* parentClass = dynamic_cast<ClassDecl*>(parent);
+	fnName = "_" + std::string(parentClass->GetName()) + "." + fnName;
 	cg->GenLabel(fnName.c_str());
     }
     else{

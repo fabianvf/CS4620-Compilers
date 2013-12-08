@@ -228,7 +228,10 @@ void Call::Emit(CodeGenerator *cg){
     //  * Iterate over params, emit code for them, and push them to the paramstack
     //  * LCall function label, and store result if function returns
     if(base != NULL){
-        // Do class stuff
+	base->Emit(cg);
+	offsetLoc = cg->GenLoad(base->offsetLoc, -4);
+        // Do class/array.length() stuff
+	 return;
     }
     FnDecl* fnDecl = dynamic_cast<FnDecl*>(FindDecl(field));
 
@@ -286,14 +289,14 @@ void NewArrayExpr::Emit(CodeGenerator *cg){
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
     Location *multiplied = cg->GenBinaryOp("*", added, vSize);
     Location *memLoc = cg->GenBuiltInCall(Alloc, multiplied);
-    cg->GenStore(memLoc, size->offsetLoc);
-    offsetLoc = cg->GenBinaryOp("+", memLoc, vSize);
+    cg->GenStore(memLoc, size->offsetLoc, 0);
+    offsetLoc = cg->GenBinaryOp("+", vSize, memLoc);
 }
 
 void ArrayAccess::Emit(CodeGenerator *cg){
     // Steps for Array Access:
     //  * compare index to 0
-    //  * compare index to address of array decremented by varsize (why?)
+    //  * compare index to address of array decremented by varsize (where the length of the array is stored)
     //  * compare result of above with 0
     //  * get result of comparison between index and 0 || comparison of index to decremented address
     //  * If true, goto label for after error
@@ -305,11 +308,16 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     //  * Point i to above address
     base->Emit(cg);
     subscript->Emit(cg);
+    Location *subLoc;
+    if(dynamic_cast<ArrayAccess*>(subscript) != NULL){
+	subLoc = dynamic_cast<ArrayAccess*>(subscript)->GetOffsetLocation(cg);
+    }
+    else subLoc = subscript->offsetLoc;
     Location *nought = cg->GenLoadConstant(0);
-    Location *lt0 = cg->GenBinaryOp("<", subscript->offsetLoc, nought);
+    Location *lt0 = cg->GenBinaryOp("<", subLoc, nought);
     char* afterError = cg->NewLabel();
     Location *arrOffset = cg->GenLoad(base->offsetLoc, -4);
-    Location *ltAddress = cg->GenBinaryOp("<", subscript->offsetLoc, arrOffset);
+    Location *ltAddress = cg->GenBinaryOp("<", subLoc, arrOffset);
     Location *eq = cg->GenBinaryOp("==", ltAddress, nought);
     Location *OR = cg->GenBinaryOp("||", lt0,eq);
     cg->GenIfZ(OR, afterError);
@@ -318,6 +326,10 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     cg->GenLabel(afterError);
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
     Location *memLoc = cg->GenBinaryOp("*", vSize, subscript->offsetLoc);
-    Location *indexItem = cg->GenBinaryOp("+", base->offsetLoc, memLoc);
-    cg->GenStore(indexItem, subscript->offsetLoc);
+    offsetLoc = cg->GenBinaryOp("+", base->offsetLoc, memLoc);
+    // Obviously was confused here... cg->GenStore(indexItem, subscript->offsetLoc); 
+}
+
+Location* ArrayAccess::GetOffsetLocation(CodeGenerator *cg){
+    return cg->GenLoad(offsetLoc, 0);
 }

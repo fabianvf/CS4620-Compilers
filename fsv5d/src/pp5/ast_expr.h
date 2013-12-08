@@ -173,6 +173,7 @@ class ArrayAccess : public LValue
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
     Type *GetType() { return base->GetType(); }
     void Emit(CodeGenerator *cg);
+    Location* GetOffsetLocation(CodeGenerator *cg);
 };
 
 /* Note that field access is used both for qualified names
@@ -205,7 +206,13 @@ class Call : public Expr
     
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
-    Type *GetType() { return FindDecl(field)->GetType(); } //TODO THIS DOES NOT WORK 
+    Type *GetType() { 
+	    if(FindDecl(field) == NULL){
+		// if base is array and field is length, accept and return array type..
+		return Type::errorType;		   
+	    }
+	    return FindDecl(field)->GetType(); 
+    }  
     void Emit(CodeGenerator *cg);
 };
 

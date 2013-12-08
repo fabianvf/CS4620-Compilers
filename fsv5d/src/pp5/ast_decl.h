@@ -74,6 +74,7 @@ class ClassDecl : public Decl
     void Check();
     bool IsClassDecl() { return true; }
     Scope *PrepareScope();
+    void Emit(CodeGenerator *cg);
 };
 
 class InterfaceDecl : public Decl 
@@ -104,6 +105,7 @@ class FnDecl : public Decl
     bool ConflictsWithPrevious(Decl *prev);
     bool MatchesPrototype(FnDecl *other);
     void Emit(CodeGenerator *cg);
+//    void EmitMethod(CodeGenerator *cg, ClassDecl* parentClass);
     Type *GetType(){ return returnType; }
 //    std::string label;
 };
