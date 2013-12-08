@@ -125,6 +125,10 @@ void AssignExpr::Emit(CodeGenerator *cg){
     left->Emit(cg);
     right->Emit(cg);
     
+    if(dynamic_cast<ArrayAccess*>(left) != NULL){
+	cg->GenStore(left->offsetLoc, right->offsetLoc);
+	return;
+    }
     if((left->offsetLoc != NULL) && (right->offsetLoc != NULL)){
         cg->GenAssign(left->offsetLoc, right->offsetLoc);
     }
@@ -327,7 +331,7 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
     Location *memLoc = cg->GenBinaryOp("*", vSize, subscript->offsetLoc);
     offsetLoc = cg->GenBinaryOp("+", base->offsetLoc, memLoc);
-    // Obviously was confused here... cg->GenStore(indexItem, subscript->offsetLoc); 
+    // cg->GenStore(offsetLoc, subscript->offsetLoc); 
 }
 
 Location* ArrayAccess::GetOffsetLocation(CodeGenerator *cg){

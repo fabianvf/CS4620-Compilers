@@ -207,9 +207,9 @@ class Call : public Expr
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     Type *GetType() { 
-	    if(FindDecl(field) == NULL){
+	    if((FindDecl(field) == NULL) && (strcmp(field->GetName(), "length") ==0)){
 		// if base is array and field is length, accept and return array type..
-		return Type::errorType;		   
+		return Type::intType;		   
 	    }
 	    return FindDecl(field)->GetType(); 
     }  
