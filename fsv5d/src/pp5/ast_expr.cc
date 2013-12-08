@@ -250,3 +250,11 @@ void Call::Emit(CodeGenerator *cg){
     offsetLoc = cg->GenLCall(fnName.c_str(), fnDecl->GetType() != Type::voidType);
     cg->GenPopParams(actuals->NumElements() * cg->VarSize);
 }
+
+void ReadIntegerExpr::Emit(CodeGenerator *cg){
+    offsetLoc = cg->GenBuiltInCall(ReadInteger);    
+}
+
+void ReadLineExpr::Emit(CodeGenerator *cg){
+    offsetLoc = cg->GenBuiltInCall(ReadLine);
+}
