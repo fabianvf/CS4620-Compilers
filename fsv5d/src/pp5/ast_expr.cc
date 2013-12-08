@@ -222,3 +222,31 @@ void LogicalExpr::Emit(CodeGenerator *cg){
 	}
     }
 }
+
+void Call::Emit(CodeGenerator *cg){
+    // Steps for call (for non-methods):
+    //  * Iterate over params, emit code for them, and push them to the paramstack
+    //  * LCall function label, and store result if function returns
+    if(base != NULL){
+        // Do class stuff
+    }
+    FnDecl* fnDecl = dynamic_cast<FnDecl*>(FindDecl(field));
+
+    // Deal with parameters
+    actuals->EmitAll(cg);
+    for(int i = actuals->NumElements()-1; i >= 0; i --){
+	cg->GenPushParam(actuals->Nth(i)->offsetLoc);
+    }
+    std::string fnName = std::string(fnDecl->GetName());
+    if(fnName == "main"){
+        // Do nothing
+    } 
+    else if(fnDecl->IsMethodDecl()){
+    	// do class stuff (implicit this?)
+    }
+    else{
+        fnName = "_" + fnName;
+    }
+    offsetLoc = cg->GenLCall(fnName.c_str(), fnDecl->GetType() != Type::voidType);
+    cg->GenPopParams(actuals->NumElements() * cg->VarSize);
+}

@@ -7,7 +7,7 @@
 #include "ast_stmt.h"
 #include "scope.h"
 #include "errors.h"
-
+#include <string>
 
 
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
@@ -189,29 +189,45 @@ bool FnDecl::MatchesPrototype(FnDecl *other) {
 }
 
 void FnDecl::Emit(CodeGenerator *cg){
-//TODO: Deal with offset (resets when entering functions, but returns to original value after exit, maybe
-cg->var_offset = cg->OffsetToFirstLocal;
+    // Deal with offset (resets when entering functions, but returns to original value after exit
+    int offsetOfParent = cg->var_offset;
+    cg->var_offset = cg->OffsetToFirstLocal;
 
-cg->GenLabel(GetName());
-//printf(GetName());
-
-//Generate begin func statement (including getting location and getting correct size
-BeginFunc *beginFunc = cg->GenBeginFunc(); 
-
-// Formals
-if(formals != NULL){
-    cg->formal_offset = cg->OffsetToFirstParam;
-    for (int i = 0; i < formals->NumElements(); i++){
-	formals->Nth(i)->EmitFormal(cg);
+    // Names the functions
+    std::string fnName = std::string(GetName());
+    if(fnName == "main"){
+        cg->GenLabel(fnName.c_str());
+    } 
+    else if(IsMethodDecl()){
+    	//TODO Need to prepend underscore + class name, plus class stuff
+	cg->GenLabel(fnName.c_str());
     }
-}
+    else{
+        fnName = "_" + fnName;
+        cg->GenLabel(fnName.c_str());
+    }
+    //this->label = fnName;
 
-// Body 
-if (body != NULL){
-    body->Emit(cg);
-}
-// Backpatch size into begin func statement
-beginFunc->SetFrameSize(-1 * (cg->var_offset - cg->OffsetToFirstLocal));
-cg->GenEndFunc();
+    //printf(GetName());
+
+    //Generate begin func statement (including getting location and getting correct size
+    BeginFunc *beginFunc = cg->GenBeginFunc(); 
+
+    // Formals
+    if(formals != NULL){
+        cg->formal_offset = cg->OffsetToFirstParam;
+        for (int i = 0; i < formals->NumElements(); i++){
+	    formals->Nth(i)->EmitFormal(cg);
+        }
+    }
+
+    // Body 
+    if (body != NULL){
+        body->Emit(cg);
+    }
+    // Backpatch size into begin func statement
+    beginFunc->SetFrameSize(-1 * (cg->var_offset - cg->OffsetToFirstLocal));
+    cg->var_offset = offsetOfParent;
+    cg->GenEndFunc();
 }
 

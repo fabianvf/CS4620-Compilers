@@ -13,6 +13,8 @@
 #include "list.h"
 #include "codegen.h"
 #include "ast_type.h"
+//#include <string>
+
 class Type;
 class NamedType;
 class Identifier;
@@ -103,6 +105,7 @@ class FnDecl : public Decl
     bool MatchesPrototype(FnDecl *other);
     void Emit(CodeGenerator *cg);
     Type *GetType(){ return returnType; }
+//    std::string label;
 };
 
 #endif

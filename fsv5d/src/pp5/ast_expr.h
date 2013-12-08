@@ -204,7 +204,8 @@ class Call : public Expr
     
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
-    Type *GetType() { return FindDecl(field)->GetType(); }
+    Type *GetType() { return FindDecl(field)->GetType(); } //TODO THIS DOES NOT WORK 
+    void Emit(CodeGenerator *cg);
 };
 
 class NewExpr : public Expr
