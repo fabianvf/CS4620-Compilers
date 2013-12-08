@@ -38,7 +38,7 @@ class Node
     yyltype *location;
     Node *parent;
     Scope *nodeScope;
-
+    
   public:
     Node(yyltype loc);
     Node();
@@ -52,7 +52,7 @@ class Node
     typedef enum { kShallow, kDeep } lookup;
     virtual Decl *FindDecl(Identifier *id, lookup l = kDeep);
     virtual Scope *PrepareScope() { return NULL; }
-
+    virtual Location* GetOffsetLoc(CodeGenerator *cg) { return offsetLoc; }
     Location* offsetLoc;
 };
    

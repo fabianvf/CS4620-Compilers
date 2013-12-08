@@ -85,7 +85,7 @@ void WhileStmt::Emit(CodeGenerator *cg){
 
    cg->GenLabel(beginWhile);
    test->Emit(cg);
-   cg->GenIfZ(test->offsetLoc, endWhile);
+   cg->GenIfZ(test->GetOffsetLoc(cg), endWhile);
    body->Emit(cg);
    cg->GenGoto(beginWhile);
    cg->GenLabel(endWhile);
@@ -118,7 +118,7 @@ void ForStmt::Emit(CodeGenerator *cg){
     init->Emit(cg);
     cg->GenLabel(beginFor);
     test->Emit(cg);
-    cg->GenIfZ(test->offsetLoc, endFor);
+    cg->GenIfZ(test->GetOffsetLoc(cg), endFor);
     body->Emit(cg);
     step->Emit(cg);
     cg->GenGoto(beginFor);
@@ -146,7 +146,7 @@ void IfStmt::Emit(CodeGenerator *cg) {
     char* elseLabel;
     test->Emit(cg);
     char* falseLabel = cg->NewLabel();
-    cg->GenIfZ(test->offsetLoc, falseLabel);
+    cg->GenIfZ(test->GetOffsetLoc(cg), falseLabel);
     body->Emit(cg);
     if(elseBody != NULL){
         elseLabel = cg->NewLabel();
@@ -169,7 +169,7 @@ ReturnStmt::ReturnStmt(yyltype loc, Expr *e) : Stmt(loc) {
 void ReturnStmt::Emit(CodeGenerator *cg){
     // Nice and easy one...
     expr->Emit(cg);
-    cg->GenReturn(expr->offsetLoc);
+    cg->GenReturn(expr->GetOffsetLoc(cg));
 }
 
 void BreakStmt::Emit(CodeGenerator *cg){
@@ -204,7 +204,12 @@ void PrintStmt::Emit(CodeGenerator *cg){
 	else if(args->Nth(i)->GetType() == Type::boolType) {  t = Type::boolType; b = PrintBool; }
 	else{ t = Type::errorType; }
 	if(t != Type::errorType){
-            cg->GenBuiltInCall(b, args->Nth(i)->offsetLoc);	
+	//    if(dynamic_cast<ArrayAccess*>(args->Nth(i)) != NULL){
+	//	cg->GenBuiltInCall(b, dynamic_cast<ArrayAccess*>(args->Nth(i))->GetOffsetLocation(cg));
+	//    }
+	//    else{
+	        cg->GenBuiltInCall(b, args->Nth(i)->GetOffsetLoc(cg));	
+	//    }
 	}
     }
 }

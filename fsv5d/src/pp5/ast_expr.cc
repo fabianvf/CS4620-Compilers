@@ -113,7 +113,7 @@ void FieldAccess::Emit(CodeGenerator *cg){
     if (base != NULL){
 	//TODO: Class stuff goes here eventually
     }
-    offsetLoc = FindDecl(field)->offsetLoc;
+    offsetLoc = FindDecl(field)->GetOffsetLoc(cg);
     if(offsetLoc == NULL){
 	    printf("FieldAccess broken");
     }
@@ -125,12 +125,12 @@ void AssignExpr::Emit(CodeGenerator *cg){
     left->Emit(cg);
     right->Emit(cg);
     
-    if(dynamic_cast<ArrayAccess*>(left) != NULL){
-	cg->GenStore(left->offsetLoc, right->offsetLoc);
-	return;
+    if((dynamic_cast<ArrayAccess*>(left) != NULL)){  // || (dynamic_cast<NewArrayExpr*>(right) != NULL)){
+    //    cg->GenStore(dynamic_cast<ArrayAccess*>(right)->GetOffsetLocation(cg), dynamic_cast<ArrayAccess
+	 cg->GenStore(left->offsetLoc, right->GetOffsetLoc(cg));
     }
-    if((left->offsetLoc != NULL) && (right->offsetLoc != NULL)){
-        cg->GenAssign(left->offsetLoc, right->offsetLoc);
+    else if((left->GetOffsetLoc(cg) != NULL) && (right->GetOffsetLoc(cg) != NULL)){
+        cg->GenAssign(left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
     }
 }
 
@@ -138,10 +138,10 @@ void ArithmeticExpr::Emit(CodeGenerator *cg){
     if(left != NULL) left->Emit(cg);
     right->Emit(cg);
     if( left != NULL ){ // Binary operators (everything but unary -)
-	offsetLoc = cg->GenBinaryOp(op->str(), left->offsetLoc, right->offsetLoc);
+	offsetLoc = cg->GenBinaryOp(op->str(), left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
     }
     else{
-	offsetLoc = cg->GenBinaryOp(op->str(), cg->GenLoadConstant(0), right->offsetLoc);
+	offsetLoc = cg->GenBinaryOp(op->str(), cg->GenLoadConstant(0), right->GetOffsetLoc(cg));
     }
 }
 
@@ -155,23 +155,23 @@ void RelationalExpr::Emit(CodeGenerator *cg){
 
     // Uses "<", only defined relational symbol
     if(opName == "<") {
-        offsetLoc = cg->GenBinaryOp(op->str(), left->offsetLoc, right->offsetLoc);
+        offsetLoc = cg->GenBinaryOp(op->str(), left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
     }
 
     // 2 > 1 is equivalent to 1 < 2
     else if(opName == ">") {
-	offsetLoc = cg->GenBinaryOp("<", right->offsetLoc, left->offsetLoc);
+	offsetLoc = cg->GenBinaryOp("<", right->GetOffsetLoc(cg), left->GetOffsetLoc(cg));
     }
     // 1 <= 2 is equivalent to (1 < 2) || (1 == 2), so this is a three step process
     else if (opName == "<=") {
-	 Location* lt = cg->GenBinaryOp("<", left->offsetLoc, right->offsetLoc);
-	 Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	 Location* lt = cg->GenBinaryOp("<", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
+	 Location* eq = cg->GenBinaryOp("==", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	 offsetLoc = cg->GenBinaryOp("||", lt, eq);
     }
     // 2 >= 1 ~> 1 <= 2 ~> (1 < 2) || (1 == 2), so this is a three step process as well
     else if (opName == ">="){
-        Location* gt = cg->GenBinaryOp("<", right->offsetLoc, left->offsetLoc);
-        Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+        Location* gt = cg->GenBinaryOp("<", right->GetOffsetLoc(cg), left->GetOffsetLoc(cg));
+        Location* eq = cg->GenBinaryOp("==", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	offsetLoc = cg->GenBinaryOp("||", gt, eq);
     }
 }
@@ -185,20 +185,20 @@ void EqualityExpr::Emit(CodeGenerator *cg){
     // uses "==", only defined equality operator
     if(opName == "=="){
 	if(left->GetType() == Type::stringType){
-            offsetLoc = cg->GenBuiltInCall(StringEqual, left->offsetLoc, right->offsetLoc);
+            offsetLoc = cg->GenBuiltInCall(StringEqual, left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	}
 	else{
-	    offsetLoc = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	    offsetLoc = cg->GenBinaryOp("==", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	}
     }
     // 1 != 2 is equivalent to (1 == 2) == false (0)
     else if(opName == "!="){
 	if(left->GetType() == Type::stringType){
-	    Location* eq = cg->GenBuiltInCall(StringEqual, left->offsetLoc, right->offsetLoc);
+	    Location* eq = cg->GenBuiltInCall(StringEqual, left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	    offsetLoc = cg->GenBinaryOp("==", eq, cg->GenLoadConstant(0));
 	}
 	else{
-	    Location* eq = cg->GenBinaryOp("==", left->offsetLoc, right->offsetLoc);
+	    Location* eq = cg->GenBinaryOp("==", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	    offsetLoc = cg->GenBinaryOp("==", eq, cg->GenLoadConstant(0));	
 	}
     }
@@ -213,16 +213,16 @@ void LogicalExpr::Emit(CodeGenerator *cg){
 
     if (left != NULL) {// Everything but unary NOT is already defined
 	if(opName == "&&"){
-	   offsetLoc = cg->GenBinaryOp("&&", left->offsetLoc, right->offsetLoc);
+	   offsetLoc = cg->GenBinaryOp("&&", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	}
 	else if (opName == "||"){
-	    offsetLoc = cg->GenBinaryOp("||", left->offsetLoc, right->offsetLoc);
+	    offsetLoc = cg->GenBinaryOp("||", left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
 	}
     }
     else{
 	// ! true ~> true == false (false) ; ! false ~> false == false (true)
 	if(opName == "!"){
-	    offsetLoc = cg->GenBinaryOp("==", right->offsetLoc, cg->GenLoadConstant(0));
+	    offsetLoc = cg->GenBinaryOp("==", right->GetOffsetLoc(cg), cg->GenLoadConstant(0));
 	}
     }
 }
@@ -233,16 +233,20 @@ void Call::Emit(CodeGenerator *cg){
     //  * LCall function label, and store result if function returns
     if(base != NULL){
 	base->Emit(cg);
-	offsetLoc = cg->GenLoad(base->offsetLoc, -4);
+	offsetLoc = cg->GenLoad(base->GetOffsetLoc(cg), -4);
+	//if(dynamic_cast<ArrayAccess*>(base) != NULL){
+	//    ArrayAccess *arr = dynamic_cast<ArrayAccess*>(base);
+        //    offsetLoc = cg->GenLoad(arr->GetOffsetLocation(cg), -4);
         // Do class/array.length() stuff
-	 return;
+	//}
+	return;
     }
     FnDecl* fnDecl = dynamic_cast<FnDecl*>(FindDecl(field));
-
+    Assert(fnDecl != NULL);
     // Deal with parameters
     actuals->EmitAll(cg);
     for(int i = actuals->NumElements()-1; i >= 0; i --){
-	cg->GenPushParam(actuals->Nth(i)->offsetLoc);
+	cg->GenPushParam(actuals->Nth(i)->GetOffsetLoc(cg));
     }
     std::string fnName = std::string(fnDecl->GetName());
     if(fnName == "main"){
@@ -280,7 +284,7 @@ void NewArrayExpr::Emit(CodeGenerator *cg){
 
     // Error handling (checks size > 0, prints error if not)
     Location* nought = cg->GenLoadConstant(0);
-    Location* lt = cg->GenBinaryOp("<", size->offsetLoc, nought);
+    Location* lt = cg->GenBinaryOp("<", size->GetOffsetLoc(cg), nought);
     char* afterError = cg->NewLabel();
     cg->GenIfZ(lt, afterError);
     cg->GenBuiltInCall(PrintString, cg->GenLoadConstant(err_arr_bad_size));
@@ -289,11 +293,12 @@ void NewArrayExpr::Emit(CodeGenerator *cg){
 
     // Computes size of array and stores it
     Location *eins = cg->GenLoadConstant(1);
-    Location *added = cg->GenBinaryOp("+", eins, size->offsetLoc);
+    Location *added = cg->GenBinaryOp("+", eins, size->GetOffsetLoc(cg));
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
     Location *multiplied = cg->GenBinaryOp("*", added, vSize);
     Location *memLoc = cg->GenBuiltInCall(Alloc, multiplied);
-    cg->GenStore(memLoc, size->offsetLoc, 0);
+    // offsetLoc = cg->GenBuiltInCall(Alloc, multiplied);
+    // cg->GenStore(memLoc, size->GetOffsetLoc(cg), 0);
     offsetLoc = cg->GenBinaryOp("+", vSize, memLoc);
 }
 
@@ -312,15 +317,12 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     //  * Point i to above address
     base->Emit(cg);
     subscript->Emit(cg);
-    Location *subLoc;
-    if(dynamic_cast<ArrayAccess*>(subscript) != NULL){
-	subLoc = dynamic_cast<ArrayAccess*>(subscript)->GetOffsetLocation(cg);
-    }
-    else subLoc = subscript->offsetLoc;
+    Location *subLoc = subscript->GetOffsetLoc(cg);
+
     Location *nought = cg->GenLoadConstant(0);
     Location *lt0 = cg->GenBinaryOp("<", subLoc, nought);
     char* afterError = cg->NewLabel();
-    Location *arrOffset = cg->GenLoad(base->offsetLoc, -4);
+    Location *arrOffset = cg->GenLoad(base->GetOffsetLoc(cg), -4);
     Location *ltAddress = cg->GenBinaryOp("<", subLoc, arrOffset);
     Location *eq = cg->GenBinaryOp("==", ltAddress, nought);
     Location *OR = cg->GenBinaryOp("||", lt0,eq);
@@ -330,10 +332,11 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     cg->GenLabel(afterError);
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
     Location *memLoc = cg->GenBinaryOp("*", vSize, subscript->offsetLoc);
-    offsetLoc = cg->GenBinaryOp("+", base->offsetLoc, memLoc);
-    // cg->GenStore(offsetLoc, subscript->offsetLoc); 
+    offsetLoc = cg->GenBinaryOp("+", base->GetOffsetLoc(cg), memLoc);
+    //cg->GenStore(offsetLoc, subscript->offsetLoc); 
+    // Location *loaded = cg->GenLoad(offsetLoc, 0);
 }
 
-Location* ArrayAccess::GetOffsetLocation(CodeGenerator *cg){
+Location* ArrayAccess::GetOffsetLoc(CodeGenerator *cg){
     return cg->GenLoad(offsetLoc, 0);
 }

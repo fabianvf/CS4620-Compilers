@@ -171,9 +171,9 @@ class ArrayAccess : public LValue
     
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
-    Type *GetType() { return base->GetType(); }
+    Type *GetType() { return Type::intType;}//base->GetType(); }
     void Emit(CodeGenerator *cg);
-    Location* GetOffsetLocation(CodeGenerator *cg);
+    Location* GetOffsetLoc(CodeGenerator *cg);
 };
 
 /* Note that field access is used both for qualified names
@@ -207,7 +207,8 @@ class Call : public Expr
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     Type *GetType() { 
-	    if((FindDecl(field) == NULL) && (strcmp(field->GetName(), "length") ==0)){
+	    if((FindDecl(field) == NULL) && (std::string(field->GetName()) == "length")){
+//	    if (base != NULL){
 		// if base is array and field is length, accept and return array type..
 		return Type::intType;		   
 	    }
@@ -234,6 +235,7 @@ class NewArrayExpr : public Expr
   public:
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
     void Emit(CodeGenerator *cg);
+    Type *GetType() { return elemType; }
 };
 
 class ReadIntegerExpr : public Expr
