@@ -289,3 +289,35 @@ void NewArrayExpr::Emit(CodeGenerator *cg){
     cg->GenStore(memLoc, size->offsetLoc);
     offsetLoc = cg->GenBinaryOp("+", memLoc, vSize);
 }
+
+void ArrayAccess::Emit(CodeGenerator *cg){
+    // Steps for Array Access:
+    //  * compare index to 0
+    //  * compare index to address of array decremented by varsize (why?)
+    //  * compare result of above with 0
+    //  * get result of comparison between index and 0 || comparison of index to decremented address
+    //  * If true, goto label for after error
+    //  * Generate then body, which contains the error printing and halt() call
+    //  * generate aftererror label
+    //  * load VarSize
+    //  * get result of index * VarSize
+    //  * get address of array plus above offset
+    //  * Point i to above address
+    base->Emit(cg);
+    subscript->Emit(cg);
+    Location *nought = cg->GenLoadConstant(0);
+    Location *lt0 = cg->GenBinaryOp("<", subscript->offsetLoc, nought);
+    char* afterError = cg->NewLabel();
+    Location *arrOffset = cg->GenLoad(base->offsetLoc, -4);
+    Location *ltAddress = cg->GenBinaryOp("<", subscript->offsetLoc, arrOffset);
+    Location *eq = cg->GenBinaryOp("==", ltAddress, nought);
+    Location *OR = cg->GenBinaryOp("||", lt0,eq);
+    cg->GenIfZ(OR, afterError);
+    cg->GenBuiltInCall(PrintString, cg->GenLoadConstant(err_arr_out_of_bounds));
+    cg->GenBuiltInCall(Halt);
+    cg->GenLabel(afterError);
+    Location *vSize = cg->GenLoadConstant(cg->VarSize);
+    Location *memLoc = cg->GenBinaryOp("*", vSize, subscript->offsetLoc);
+    Location *indexItem = cg->GenBinaryOp("+", base->offsetLoc, memLoc);
+    cg->GenStore(indexItem, subscript->offsetLoc);
+}

@@ -172,6 +172,7 @@ class ArrayAccess : public LValue
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
     Type *GetType() { return base->GetType(); }
+    void Emit(CodeGenerator *cg);
 };
 
 /* Note that field access is used both for qualified names
