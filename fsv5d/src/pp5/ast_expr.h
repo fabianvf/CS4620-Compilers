@@ -225,6 +225,7 @@ class NewArrayExpr : public Expr
     
   public:
     NewArrayExpr(yyltype loc, Expr *sizeExpr, Type *elemType);
+    void Emit(CodeGenerator *cg);
 };
 
 class ReadIntegerExpr : public Expr

@@ -6,7 +6,7 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include <string.h>
-
+#include "errors.h"
 
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
@@ -257,4 +257,35 @@ void ReadIntegerExpr::Emit(CodeGenerator *cg){
 
 void ReadLineExpr::Emit(CodeGenerator *cg){
     offsetLoc = cg->GenBuiltInCall(ReadLine);
+}
+
+void NewArrayExpr::Emit(CodeGenerator *cg){
+    // Emit code for size expr
+    size->Emit(cg);
+    // Steps to generate new array expr:
+    //  * Check that size > 0 (Generate size, generate 0, compare size and 0)
+    //  * If size > 0, goto label for after if statement
+    //  * Inside body of then statement, print error and halt program
+    //  * Compute size of array (1 + size * VarSize)
+    //  * call alloc with size of array
+    //  * Put size into pointer for new space
+    //  * point b to array (offset VarSize)
+
+    // Error handling (checks size > 0, prints error if not)
+    Location* nought = cg->GenLoadConstant(0);
+    Location* lt = cg->GenBinaryOp("<", size->offsetLoc, nought);
+    char* afterError = cg->NewLabel();
+    cg->GenIfZ(lt, afterError);
+    cg->GenBuiltInCall(PrintString, cg->GenLoadConstant(err_arr_bad_size));
+    cg->GenBuiltInCall(Halt);
+    cg->GenLabel(afterError);
+
+    // Computes size of array and stores it
+    Location *eins = cg->GenLoadConstant(1);
+    Location *added = cg->GenBinaryOp("+", eins, size->offsetLoc);
+    Location *vSize = cg->GenLoadConstant(cg->VarSize);
+    Location *multiplied = cg->GenBinaryOp("*", added, vSize);
+    Location *memLoc = cg->GenBuiltInCall(Alloc, multiplied);
+    cg->GenStore(memLoc, size->offsetLoc);
+    offsetLoc = cg->GenBinaryOp("+", memLoc, vSize);
 }
