@@ -61,6 +61,7 @@ class ArrayType : public Type
     void PrintToStream(std::ostream& out) { out << elemType << "[]"; }
     void Check();
     bool IsEquivalentTo(Type *other);
+    Type *GetElemType() { return elemType; }
 };
 
  

@@ -171,7 +171,7 @@ class ArrayAccess : public LValue
     
   public:
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
-    Type *GetType() { return Type::intType;}//base->GetType(); }
+    Type *GetType() { return dynamic_cast<ArrayType*>(base->GetType())->GetElemType(); }
     void Emit(CodeGenerator *cg);
     Location* GetOffsetLoc(CodeGenerator *cg);
 };
@@ -207,7 +207,7 @@ class Call : public Expr
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     Type *GetType() { 
-	    if((FindDecl(field) == NULL) && (std::string(field->GetName()) == "length")){
+	    if((base != NULL) && (std::string(field->GetName()) == "length")){
 //	    if (base != NULL){
 		// if base is array and field is length, accept and return array type..
 		return Type::intType;		   

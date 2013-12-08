@@ -298,8 +298,8 @@ void NewArrayExpr::Emit(CodeGenerator *cg){
     Location *multiplied = cg->GenBinaryOp("*", added, vSize);
     Location *memLoc = cg->GenBuiltInCall(Alloc, multiplied);
     // offsetLoc = cg->GenBuiltInCall(Alloc, multiplied);
-    // cg->GenStore(memLoc, size->GetOffsetLoc(cg), 0);
-    offsetLoc = cg->GenBinaryOp("+", vSize, memLoc);
+    cg->GenStore(memLoc, size->GetOffsetLoc(cg), 0);
+    offsetLoc = cg->GenBinaryOp("+", memLoc, vSize);
 }
 
 void ArrayAccess::Emit(CodeGenerator *cg){
@@ -331,7 +331,7 @@ void ArrayAccess::Emit(CodeGenerator *cg){
     cg->GenBuiltInCall(Halt);
     cg->GenLabel(afterError);
     Location *vSize = cg->GenLoadConstant(cg->VarSize);
-    Location *memLoc = cg->GenBinaryOp("*", vSize, subscript->offsetLoc);
+    Location *memLoc = cg->GenBinaryOp("*", vSize, subLoc);
     offsetLoc = cg->GenBinaryOp("+", base->GetOffsetLoc(cg), memLoc);
     //cg->GenStore(offsetLoc, subscript->offsetLoc); 
     // Location *loaded = cg->GenLoad(offsetLoc, 0);

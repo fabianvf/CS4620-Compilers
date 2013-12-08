@@ -53,7 +53,7 @@ void VarDecl::EmitGlobal(CodeGenerator *cg){
 	printf("Error: Global offset was less than 0!");
     }
 
-    offsetLoc = new Location(fpRelative, offset, GetName());
+    offsetLoc = new Location(gpRelative, offset, GetName());
     cg->global_offset += cg->VarSize;
 }
 
