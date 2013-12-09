@@ -59,6 +59,7 @@ class VarDecl : public Decl
     Type *GetDeclaredType() { return type; }
     Type *GetType() { return type; }
     int vtableOffset;
+    bool isMember;
 };
 
 class ClassDecl : public Decl 

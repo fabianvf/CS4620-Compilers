@@ -116,25 +116,21 @@ void FieldAccess::Emit(CodeGenerator *cg){
     }
     // Implicit this - if I am in a class scope, then this is implicit
     VarDecl* vdecl = dynamic_cast<VarDecl*>(FindDecl(field));
-    if(dynamic_cast<ClassDecl*>(vdecl->GetParent())){
+    if(vdecl->isMember){
 	// Now I need to get a location that points to the correct address in the class...
-//	classPointer = cg->ThisPtr;
-//	vtableOffset = vdecl->vtableOffset;
-//	offsetLoc = cg->GenLoad(cg->ThisPtr, vdecl->vtableOffset);
+	this->classPointer = cg->ThisPtr;
+	this->vtableAddress = vdecl->vtableOffset;
+//	std::cout << vtableAddress << std::endl;
+//	Assert(cg->ThisPtr != NULL);
+//	Assert(classPointer != NULL);
         return;
     }
-
     // Normal variables
-    offsetLoc = FindDecl(field)->GetOffsetLoc(cg);
-
-    if(offsetLoc == NULL){
-	    //printf("FieldAccess broken\n");
-	    //std::cout << field << std::endl;
-    }
+    offsetLoc = FindDecl(field)->GetOffsetLoc(cg); 
 }
-// Just like array access, shouldn't load it immediately
+
+// Just like array access, shouldn't load it immediately (NEVER MIND COULDN"T GET WORKING)
 Location *FieldAccess::GetOffsetLoc(CodeGenerator *cg){
-//    if((classPointer != NULL)) { return cg->GenLoad(classPointer, vtableOffset); }
     return offsetLoc;
 }
 void AssignExpr::Emit(CodeGenerator *cg){
@@ -145,12 +141,22 @@ void AssignExpr::Emit(CodeGenerator *cg){
     
     if((dynamic_cast<ArrayAccess*>(left) != NULL)){  // || (dynamic_cast<NewArrayExpr*>(right) != NULL)){
       cg->GenStore(left->offsetLoc, right->GetOffsetLoc(cg));
+      return;
     }
-    else if(dynamic_cast<NamedType*>(FindDecl(dynamic_cast<FieldAccess*>(left)->GetId())->GetType()) != NULL){
-//	cg->GenStore(left->GetOffsetLoc(cg), right->offsetLoc);
-	return;
+    // Assigning to a member variable
+    VarDecl* vdecl = dynamic_cast<VarDecl*>(FindDecl(dynamic_cast<FieldAccess*>(left)->GetId()));
+    if(vdecl->isMember){
+	cg->GenStore(dynamic_cast<FieldAccess*>(left)->classPointer, right->GetOffsetLoc(cg), vdecl->vtableOffset);
     }
-    else if((left->GetOffsetLoc(cg) != NULL) && (right->GetOffsetLoc(cg) != NULL)){
+/**    else if(dynamic_cast<NamedType*>(FindDecl(dynamic_cast<FieldAccess*>(left)->GetId())->GetType()) != NULL){
+	VarDecl* vdecl= dynamic_cast<VarDecl*>(FindDecl(dynamic_cast<FieldAccess*>(left)->GetId()));
+	if(vdecl->isMember){
+	    cg->GenStore(cg->ThisPtr, right->GetOffsetLoc(cg), vdecl->vtableOffset);
+	    return;
+	}
+	
+   }*/
+    if((left->GetOffsetLoc(cg) != NULL) && (right->GetOffsetLoc(cg) != NULL)){
         cg->GenAssign(left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
     }
 }

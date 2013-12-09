@@ -28,23 +28,25 @@ void Program::Emit(CodeGenerator *cg){
     // Catch linker error (there must be a main function) before generation starts
     fdecl = dynamic_cast<FnDecl*>(nodeScope->Lookup("main"));
     cg->global_offset = 0;
-    for( int i = 0; i < decls->NumElements(); i++){
-
-    }
+    // It turns out that order is quite important!
     for(int i = 0; i < decls->NumElements(); i++){
-	// Need to separate global and local variable declarations
 	vdecl = dynamic_cast<VarDecl*>(decls->Nth(i));
 	if(vdecl != NULL){
             vdecl->EmitGlobal(cg);		
 	}
-
+    }
+    for( int i = 0; i < decls->NumElements(); i++){
+        cdecl = dynamic_cast<ClassDecl*>(decls->Nth(i));
+	if (cdecl != NULL){
+	       cdecl->GetSize();
+	       cdecl->Emit(cg);
+	}
+    }
+ 
+    for(int i = 0; i < decls->NumElements(); i++){
 	fdecl = dynamic_cast<FnDecl*>(decls->Nth(i));
 	if(fdecl != NULL){
 	    fdecl->Emit(cg);
-	}
-    	cdecl = dynamic_cast<ClassDecl*>(decls->Nth(i));
-	if(cdecl != NULL){
-//	    cdecl->Emit(cg);
 	}
     }
     cg->DoFinalCodeGen();

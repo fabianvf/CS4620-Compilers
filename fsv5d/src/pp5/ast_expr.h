@@ -194,7 +194,7 @@ class FieldAccess : public LValue
     Identifier *GetId() { return field; }
     Location* GetOffsetLoc(CodeGenerator *cg);
     Location* classPointer;
-    int vtableOffset; 
+    int vtableAddress; 
 };
 
 /* Like field access, call is used both for qualified base.field()

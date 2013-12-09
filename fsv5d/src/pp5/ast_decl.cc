@@ -40,6 +40,7 @@ void VarDecl::Emit(CodeGenerator *cg){
     }
     offsetLoc = new Location(fpRelative, offset, GetName());
     cg->var_offset -= cg->VarSize;
+    isMember=false;
 }
 
 // Code generation for global variable declarations
@@ -55,6 +56,7 @@ void VarDecl::EmitGlobal(CodeGenerator *cg){
 
     offsetLoc = new Location(gpRelative, offset, GetName());
     cg->global_offset += cg->VarSize;
+    isMember = false;
 }
 
 void VarDecl::EmitFormal(CodeGenerator *cg){	
@@ -67,12 +69,14 @@ void VarDecl::EmitFormal(CodeGenerator *cg){
     }
     offsetLoc = new Location(fpRelative, offset, GetName());
     cg->formal_offset += cg->VarSize;
+    isMember = false;
 }
 
 void VarDecl::EmitMember(CodeGenerator *cg){
     // Just need to store offset from vtable pointer
-    vtableOffset = cg->class_offset;
+//    vtableOffset = cg->class_offset;
     cg->class_offset += cg->VarSize;
+    isMember = true;
 }
 
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
@@ -138,7 +142,7 @@ void ClassDecl::Emit(CodeGenerator *cg){
     //  * Do inheritance stuff as well
     List<const char*> *methodLabels = new List<const char*>();
     cg->class_offset = cg->VarSize;
-//    size = cg->VarSize;
+
     FnDecl *fdecl;
     VarDecl*vdecl;
     for( int i = 0; i < members->NumElements(); i++){
@@ -146,20 +150,18 @@ void ClassDecl::Emit(CodeGenerator *cg){
 	vdecl = dynamic_cast<VarDecl*>(members->Nth(i));
 	if (vdecl != NULL){
 	    vdecl->EmitMember(cg);	    
-//	    size += cg->VarSize;
-	}
-	else{
-	    fdecl = dynamic_cast<FnDecl*>(members->Nth(i));
-	    if(fdecl != NULL){
-		// May have to make FnDecl::EmitMember(cg, this)...
-	        fdecl->Emit(cg);
-		methodLabels->Append(("_" + std::string(GetName()) + "." + std::string(fdecl->GetName())).c_str());
-	    }
 	}
     }
-//    std::cout << size << std::endl;
-//    size = cg->class_offset;
-    // Is it really this easy?
+
+    for( int i = 0; i < members->NumElements(); i++){
+        fdecl = dynamic_cast<FnDecl*>(members->Nth(i));
+        if(fdecl != NULL){
+            // May have to make FnDecl::EmitMember(cg, this)...
+            fdecl->Emit(cg);
+	    methodLabels->Append(("_" + std::string(GetName()) + "." + std::string(fdecl->GetName())).c_str());
+	}
+    }
+   // Is it really this easy?
     cg->GenVTable(GetName(), methodLabels);
 }
 
@@ -167,6 +169,7 @@ int ClassDecl::GetSize(){
     int size = 4;
     for(int i = 0; i < members->NumElements(); i++){
 	if(dynamic_cast<VarDecl*>(members->Nth(i)) != NULL){
+	    dynamic_cast<VarDecl*>(members->Nth(i))->vtableOffset = size;
 	    size += 4;
 	}
     }
