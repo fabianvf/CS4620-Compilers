@@ -45,7 +45,7 @@ class CodeGenerator {
     int var_offset;
     int global_offset;
     int formal_offset;
-
+    int class_offset;
     static Location* ThisPtr;
 
     CodeGenerator();

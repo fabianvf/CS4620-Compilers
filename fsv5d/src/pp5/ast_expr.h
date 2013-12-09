@@ -191,6 +191,10 @@ class FieldAccess : public LValue
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     void Emit(CodeGenerator *cg);
     Type *GetType() { return FindDecl(field)->GetType(); }
+    Identifier *GetId() { return field; }
+    Location* GetOffsetLoc(CodeGenerator *cg);
+    Location* classPointer;
+    int vtableOffset; 
 };
 
 /* Like field access, call is used both for qualified base.field()
@@ -207,10 +211,12 @@ class Call : public Expr
   public:
     Call(yyltype loc, Expr *base, Identifier *field, List<Expr*> *args);
     Type *GetType() { 
-	    if((base != NULL) && (std::string(field->GetName()) == "length")){
-//	    if (base != NULL){
-		// if base is array and field is length, accept and return array type..
-		return Type::intType;		   
+	    if(base != NULL){
+	        if (std::string(field->GetName()) == "length"){
+    		    // if base is array and field is length, accept and return int type
+		    return Type::intType;
+		}
+		// Class stuff
 	    }
 	    return FindDecl(field)->GetType(); 
     }  
@@ -224,6 +230,8 @@ class NewExpr : public Expr
     
   public:
     NewExpr(yyltype loc, NamedType *clsType);
+    void Emit(CodeGenerator *cg);
+    Type *GetType() { return cType; }
 };
 
 class NewArrayExpr : public Expr

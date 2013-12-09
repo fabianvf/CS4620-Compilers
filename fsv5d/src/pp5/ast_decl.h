@@ -55,8 +55,10 @@ class VarDecl : public Decl
     void Emit(CodeGenerator *cg);
     void EmitGlobal(CodeGenerator *cg);
     void EmitFormal(CodeGenerator *cg);
+    void EmitMember(CodeGenerator *cg);
     Type *GetDeclaredType() { return type; }
     Type *GetType() { return type; }
+    int vtableOffset;
 };
 
 class ClassDecl : public Decl 
@@ -75,6 +77,7 @@ class ClassDecl : public Decl
     bool IsClassDecl() { return true; }
     Scope *PrepareScope();
     void Emit(CodeGenerator *cg);
+    int GetSize();
 };
 
 class InterfaceDecl : public Decl 

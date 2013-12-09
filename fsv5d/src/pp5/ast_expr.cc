@@ -111,14 +111,32 @@ void NullConstant::Emit(CodeGenerator *cg){
 
 void FieldAccess::Emit(CodeGenerator *cg){
     if (base != NULL){
-	//TODO: Class stuff goes here eventually
+	// Class stuff with explicit this goes here eventually
+	return;
     }
+    // Implicit this - if I am in a class scope, then this is implicit
+    VarDecl* vdecl = dynamic_cast<VarDecl*>(FindDecl(field));
+    if(dynamic_cast<ClassDecl*>(vdecl->GetParent())){
+	// Now I need to get a location that points to the correct address in the class...
+//	classPointer = cg->ThisPtr;
+//	vtableOffset = vdecl->vtableOffset;
+//	offsetLoc = cg->GenLoad(cg->ThisPtr, vdecl->vtableOffset);
+        return;
+    }
+
+    // Normal variables
     offsetLoc = FindDecl(field)->GetOffsetLoc(cg);
+
     if(offsetLoc == NULL){
-	    printf("FieldAccess broken");
+	    //printf("FieldAccess broken\n");
+	    //std::cout << field << std::endl;
     }
 }
-
+// Just like array access, shouldn't load it immediately
+Location *FieldAccess::GetOffsetLoc(CodeGenerator *cg){
+//    if((classPointer != NULL)) { return cg->GenLoad(classPointer, vtableOffset); }
+    return offsetLoc;
+}
 void AssignExpr::Emit(CodeGenerator *cg){
     // Generate assignment, by first evaluating the left and right (to get the address)
     // and then by assigning the value in the right location to the left location
@@ -126,8 +144,11 @@ void AssignExpr::Emit(CodeGenerator *cg){
     right->Emit(cg);
     
     if((dynamic_cast<ArrayAccess*>(left) != NULL)){  // || (dynamic_cast<NewArrayExpr*>(right) != NULL)){
-    //    cg->GenStore(dynamic_cast<ArrayAccess*>(right)->GetOffsetLocation(cg), dynamic_cast<ArrayAccess
-	 cg->GenStore(left->offsetLoc, right->GetOffsetLoc(cg));
+      cg->GenStore(left->offsetLoc, right->GetOffsetLoc(cg));
+    }
+    else if(dynamic_cast<NamedType*>(FindDecl(dynamic_cast<FieldAccess*>(left)->GetId())->GetType()) != NULL){
+//	cg->GenStore(left->GetOffsetLoc(cg), right->offsetLoc);
+	return;
     }
     else if((left->GetOffsetLoc(cg) != NULL) && (right->GetOffsetLoc(cg) != NULL)){
         cg->GenAssign(left->GetOffsetLoc(cg), right->GetOffsetLoc(cg));
@@ -233,12 +254,14 @@ void Call::Emit(CodeGenerator *cg){
     //  * LCall function label, and store result if function returns
     if(base != NULL){
 	base->Emit(cg);
-	offsetLoc = cg->GenLoad(base->GetOffsetLoc(cg), -4);
-	//if(dynamic_cast<ArrayAccess*>(base) != NULL){
-	//    ArrayAccess *arr = dynamic_cast<ArrayAccess*>(base);
-        //    offsetLoc = cg->GenLoad(arr->GetOffsetLocation(cg), -4);
+	if(dynamic_cast<ArrayType*>(base->GetType()) != NULL){
+		offsetLoc = cg->GenLoad(base->GetOffsetLoc(cg), -4);
+	}
+	if(dynamic_cast<ArrayAccess*>(base) != NULL){
+	    ArrayAccess *arr = dynamic_cast<ArrayAccess*>(base);
+            offsetLoc = cg->GenLoad(arr->GetOffsetLoc(cg), -4);
         // Do class/array.length() stuff
-	//}
+	}
 	return;
     }
     FnDecl* fnDecl = dynamic_cast<FnDecl*>(FindDecl(field));
@@ -339,4 +362,19 @@ void ArrayAccess::Emit(CodeGenerator *cg){
 
 Location* ArrayAccess::GetOffsetLoc(CodeGenerator *cg){
     return cg->GenLoad(offsetLoc, 0);
+}
+
+void NewExpr::Emit(CodeGenerator *cg){
+    // Steps to create new object:
+    //  * Get size of class (need to compute size of class)
+    //  * Allocate space
+    //  * Point tempvar to Vtable for class
+    //  * store vtable in allocated memory
+    ClassDecl* cdecl = dynamic_cast<ClassDecl*>(FindDecl(cType->GetId()));
+    Assert(cdecl != NULL);
+    Location *classSize = cg->GenLoadConstant(cdecl->GetSize());
+    Location *memLoc = cg->GenBuiltInCall(Alloc, classSize);
+    Location* vtableLabel = cg->GenLoadLabel(cdecl->GetName());
+    cg->GenStore(memLoc, vtableLabel);
+    offsetLoc = memLoc;
 }

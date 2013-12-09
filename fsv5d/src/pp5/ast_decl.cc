@@ -69,6 +69,12 @@ void VarDecl::EmitFormal(CodeGenerator *cg){
     cg->formal_offset += cg->VarSize;
 }
 
+void VarDecl::EmitMember(CodeGenerator *cg){
+    // Just need to store offset from vtable pointer
+    vtableOffset = cg->class_offset;
+    cg->class_offset += cg->VarSize;
+}
+
 ClassDecl::ClassDecl(Identifier *n, NamedType *ex, List<NamedType*> *imp, List<Decl*> *m) : Decl(n) {
     // extends can be NULL, impl & mem may be empty lists but cannot be NULL
     Assert(n != NULL && imp != NULL && m != NULL);     
@@ -123,11 +129,48 @@ Scope *ClassDecl::PrepareScope()
 }
 
 void ClassDecl::Emit(CodeGenerator *cg){
-    //TODO
+    // Will be layed out as example in slides was- class points to address of vtable, 
+    // which is followed by each field of the class, with inherited variables appearing first.
+    //
     // Steps for declaring class:
-    //  * Store global class variables at correct offsets from class
+    //  * Store class variables at correct offsets from class
     //  * Store function declarations correctly in Vtable...
-    members->EmitAll(cg);
+    //  * Do inheritance stuff as well
+    List<const char*> *methodLabels = new List<const char*>();
+    cg->class_offset = cg->VarSize;
+//    size = cg->VarSize;
+    FnDecl *fdecl;
+    VarDecl*vdecl;
+    for( int i = 0; i < members->NumElements(); i++){
+	// First attempt was stupid, obviously vardecls go before fndecls...
+	vdecl = dynamic_cast<VarDecl*>(members->Nth(i));
+	if (vdecl != NULL){
+	    vdecl->EmitMember(cg);	    
+//	    size += cg->VarSize;
+	}
+	else{
+	    fdecl = dynamic_cast<FnDecl*>(members->Nth(i));
+	    if(fdecl != NULL){
+		// May have to make FnDecl::EmitMember(cg, this)...
+	        fdecl->Emit(cg);
+		methodLabels->Append(("_" + std::string(GetName()) + "." + std::string(fdecl->GetName())).c_str());
+	    }
+	}
+    }
+//    std::cout << size << std::endl;
+//    size = cg->class_offset;
+    // Is it really this easy?
+    cg->GenVTable(GetName(), methodLabels);
+}
+
+int ClassDecl::GetSize(){
+    int size = 4;
+    for(int i = 0; i < members->NumElements(); i++){
+	if(dynamic_cast<VarDecl*>(members->Nth(i)) != NULL){
+	    size += 4;
+	}
+    }
+    return size;
 }
 
 InterfaceDecl::InterfaceDecl(Identifier *n, List<Decl*> *m) : Decl(n) {

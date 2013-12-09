@@ -24,12 +24,13 @@ void Program::Check() {
 void Program::Emit(CodeGenerator *cg){
     FnDecl *fdecl;
     VarDecl *vdecl;
+    ClassDecl *cdecl;
     // Catch linker error (there must be a main function) before generation starts
     fdecl = dynamic_cast<FnDecl*>(nodeScope->Lookup("main"));
-    if(fdecl == NULL){
-	    ReportError::NoMainFound();
-    }    
     cg->global_offset = 0;
+    for( int i = 0; i < decls->NumElements(); i++){
+
+    }
     for(int i = 0; i < decls->NumElements(); i++){
 	// Need to separate global and local variable declarations
 	vdecl = dynamic_cast<VarDecl*>(decls->Nth(i));
@@ -41,8 +42,10 @@ void Program::Emit(CodeGenerator *cg){
 	if(fdecl != NULL){
 	    fdecl->Emit(cg);
 	}
-	//TODO: For now, ignore classes and (forever) interfaces
-	//	decls->Nth(i)->Emit(cg);
+    	cdecl = dynamic_cast<ClassDecl*>(decls->Nth(i));
+	if(cdecl != NULL){
+//	    cdecl->Emit(cg);
+	}
     }
     cg->DoFinalCodeGen();
 }
