@@ -31,15 +31,16 @@ else
 	rm -rf diff_results/asm/*
 fi
 if [ ! -d decaf_samples ]; then
+	mkdir decaf_samples
 	cp samples/*.decaf decaf_samples/
 fi
 pass_counter=0
 fail_counter=0
-for entry in "$1"/*
+for entry in "decaf_samples"/*
 do
 	filename=${entry%%.*}
 	filename=${filename##*/}
-#	echo "$entry"
+	echo "$entry"
 
 	# Generates assembly 
 	asm1=`./dcc < $entry 2> /dev/null`
@@ -53,8 +54,8 @@ do
 
 	diff "diff_results/asm/$filename.asm" "diff_results/asm/${filename}_reference.asm" > "diff_results/asm/${filename}_asm.diff"
 	# Generates actual output 
-#	out2=`spim -file "diff_results/asm/${filename}_reference.asm" 2> /dev/null`
-	out2=$(cat samples/$filename.out)
+	out2=`spim -file "diff_results/asm/${filename}_reference.asm" 2> /dev/null`
+#	out2=$(cat samples/$filename.out)
 	out1=`spim -file "diff_results/asm/$filename.asm" 2> /dev/null`
 #	printf '%s\n' "$out1" > "diff_results/out/$filename.out"
 #	printf '%s\n' "$out2" > "diff_results/out/${filename}_reference.out"
